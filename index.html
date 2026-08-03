@@ -2084,11 +2084,16 @@
         variants: variants
       };
 
-      products.unshift(newProduct);
-      // Firebase Firestore me product save karne ke liye
+      // Local memory aur Firebase dono me save karein
+products.unshift(newProduct);
+
+// 1. Firebase Cloud Sync (Taaki dusre phones par jaye)
 if (window.saveProductToDatabase) {
     window.saveProductToDatabase(newProduct);
 }
+
+// 2. Local Backup
+localStorage.setItem('my_shop_products', JSON.stringify(products));
       resetFilter();
       populateProductManagerUI();
       closeAdminPanel();
