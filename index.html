@@ -2320,10 +2320,10 @@ if (savedProducts) {
 }
 renderProducts(products);
   </script>
-  <!-- Firebase SDK & Firestore Connection -->
+  <!-- Firebase Firestore Realtime Connection -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AizaSyC6EEk-7jh_1K2cWGuTXTQqzPTrGaya0LI",
@@ -2336,35 +2336,25 @@ renderProducts(products);
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-  window.db = db;
 
-  // 🔄 REALTIME DATABASE LISTENER (Firestore se Live Data Mangwana)
-  const productsRef = collection(db, "products");
-  
-  onSnapshot(productsRef, (snapshot) => {
-    let firebaseProducts = [];
-    snapshot.forEach((doc) => {
-      firebaseProducts.push({ id: doc.id, ...doc.data() });
-    });
-    
-    // Agar Firestore mein data hai, toh screen par render karein
-    if (firebaseProducts.length > 0) {
+  // 1. Firebase se data har waqt live sync rahega
+  onSnapshot(collection(db, "products"), (snapshot) => {
+    let list = [];
+    snapshot.forEach((d) => list.push({ id: d.id, ...d.data() }));
+    if (list.length > 0) {
       if (typeof renderProducts === 'function') {
-        renderProducts(firebaseProducts);
+        products = list;
+        renderProducts(products);
       }
     }
   });
 
-  // ➕ FIRESTORE MEIN ADD KARNE KA FUNCTION (Global Access ke liye)
-  window.addProductToFirebase = async function(productData) {
-    try {
-      await addDoc(collection(db, "products"), productData);
-      alert("Product Permanently Saved in Database! 🎉");
-    } catch (e) {
-      console.error("Error adding product: ", e);
-      alert("Error saving to database!");
-    }
-  };
+  // 2. LocalStorage sync backup
+  const savedProducts = localStorage.getItem('my_shop_products');
+  if (savedProducts && typeof renderProducts === 'function') {
+      products = JSON.parse(savedProducts);
+      renderProducts(products);
+  }
 </script>
 </body>
   </html>
