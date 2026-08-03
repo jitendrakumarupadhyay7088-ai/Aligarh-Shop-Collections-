@@ -2085,7 +2085,10 @@
       };
 
       products.unshift(newProduct);
-      localStorage.setItem('my_shop_products', JSON.stringify(products));
+      // Firebase Firestore me product save karne ke liye
+if (window.saveProductToDatabase) {
+    window.saveProductToDatabase(newProduct);
+}
       resetFilter();
       populateProductManagerUI();
       closeAdminPanel();
@@ -2321,7 +2324,7 @@ if (savedProducts) {
 }
 renderProducts(products);
   </script>
-  <!-- Firebase Firestore Realtime Connection -->
+<!-- Firebase Firestore Realtime Connection -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -2338,24 +2341,24 @@ renderProducts(products);
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // 1. Firebase se data har waqt live sync rahega
+  // 1. Live Sync: Kisi bhi phone par data apne aap show hoga
   onSnapshot(collection(db, "products"), (snapshot) => {
     let list = [];
     snapshot.forEach((d) => list.push({ id: d.id, ...d.data() }));
-    if (list.length > 0) {
-      if (typeof renderProducts === 'function') {
-        products = list;
-        renderProducts(products);
-      }
+    if (list.length > 0 && typeof renderProducts === 'function') {
+      products = list;
+      renderProducts(products);
     }
   });
 
-  // 2. LocalStorage sync backup
-  const savedProducts = localStorage.getItem('my_shop_products');
-  if (savedProducts && typeof renderProducts === 'function') {
-      products = JSON.parse(savedProducts);
-      renderProducts(products);
-  }
+  // 2. Global Save Function (Sabhi phones tak data bhejne ke liye)
+  window.saveProductToDatabase = async function(productData) {
+    try {
+      await addDoc(collection(db, "products"), productData);
+    } catch (e) {
+      console.error("Firebase Error: ", e);
+    }
+  };
 </script>
 </body>
   </html>
