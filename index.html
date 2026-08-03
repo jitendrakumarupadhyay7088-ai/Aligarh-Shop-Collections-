@@ -2143,12 +2143,22 @@ localStorage.setItem('my_shop_products', JSON.stringify(products));
     }
 
     function toggleStockStatus(productId, isChecked) {
-      const product = products.find(p => p.id === productId);
-      if (product) {
+    const product = products.find(p => p.id === productId || p.id == productId);
+    if (product) {
         product.isOutOfStock = isChecked;
+        
+        // 1. UI update
         renderProducts(products);
         populateProductManagerUI();
-      }
+
+        // 2. Local Backup
+        localStorage.setItem('my_shop_products', JSON.stringify(products));
+
+        // 3. Firebase Cloud Update (Sabhi phones par Live Out of Stock karne ke liye)
+        if (typeof window.saveProductToDatabase === 'function') {
+            window.saveProductToDatabase(product);
+        }
+    }
     }
 
     function openEditModal(productId) {
