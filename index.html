@@ -310,10 +310,6 @@
       cursor: not-allowed;
     }
 
-    .add-to-cart-btn:disabled:hover {
-      background-color: #94a3b8;
-    }
-
     .toggle-switch-label {
       display: flex;
       align-items: center;
@@ -468,21 +464,12 @@
       color: #ffffff;
     }
 
-    .cart-header h3 {
-      font-size: 18px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
     .close-cart-btn {
       background: none;
       border: none;
       color: #94a3b8;
       font-size: 20px;
       cursor: pointer;
-      transition: color 0.2s;
     }
 
     .close-cart-btn:hover {
@@ -517,25 +504,6 @@
       flex: 1;
     }
 
-    .cart-item-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #0f172a;
-      margin-bottom: 4px;
-    }
-
-    .cart-item-size {
-      font-size: 12px;
-      color: #64748b;
-      margin-bottom: 6px;
-    }
-
-    .cart-item-price {
-      font-size: 14px;
-      font-weight: 700;
-      color: #0284c7;
-    }
-
     .qty-controls {
       display: flex;
       align-items: center;
@@ -551,13 +519,6 @@
       border-radius: 4px;
       cursor: pointer;
       font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .qty-btn:hover {
-      background: #e2e8f0;
     }
 
     .remove-btn {
@@ -566,11 +527,6 @@
       border: none;
       cursor: pointer;
       font-size: 15px;
-      padding: 5px;
-    }
-
-    .remove-btn:hover {
-      color: #b91c1c;
     }
 
     .cart-footer {
@@ -598,8 +554,6 @@
       border: 1px solid #cbd5e1;
       border-radius: 6px;
       text-transform: uppercase;
-      font-weight: 600;
-      font-size: 13px;
       outline: none;
     }
 
@@ -609,30 +563,7 @@
       color: #ffffff;
       border: none;
       border-radius: 6px;
-      font-weight: 600;
-      font-size: 13px;
       cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .coupon-input-group button:hover {
-      background-color: #1e293b;
-    }
-
-    .coupon-msg {
-      font-size: 12px;
-      margin-top: 6px;
-      display: none;
-    }
-
-    .coupon-msg.success {
-      color: #16a34a;
-      display: block;
-    }
-
-    .coupon-msg.error {
-      color: #ef4444;
-      display: block;
     }
 
     .cart-summary-row {
@@ -650,7 +581,6 @@
       font-weight: 700;
       color: #0f172a;
       margin-bottom: 15px;
-      margin-top: 8px;
       padding-top: 8px;
       border-top: 1px solid #e2e8f0;
     }
@@ -665,7 +595,6 @@
       font-weight: 700;
       font-size: 15px;
       cursor: pointer;
-      transition: background 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -680,7 +609,6 @@
       text-align: center;
       color: #64748b;
       margin-top: 60px;
-      font-size: 15px;
     }
 
     /* Modal Styling */
@@ -735,7 +663,6 @@
       font-size: 13px;
       color: #64748b;
       cursor: pointer;
-      transition: all 0.2s;
     }
 
     .admin-tab-btn.active {
@@ -779,16 +706,6 @@
       outline: none;
     }
 
-    .form-group input[type="file"] {
-      padding: 8px;
-      background-color: #f8fafc;
-      cursor: pointer;
-    }
-
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-      border-color: #0284c7;
-    }
-
     .image-preview {
       width: 100%;
       height: 120px;
@@ -829,9 +746,7 @@
       height: 38px;
       border-radius: 6px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+
     }
 
     .add-variant-btn {
@@ -855,10 +770,6 @@
       border-radius: 8px;
       font-weight: 700;
       cursor: pointer;
-    }
-
-    .submit-product-btn:hover {
-      background-color: #0369a1;
     }
 
     .menu-manager-table {
@@ -890,10 +801,6 @@
       margin-right: 4px;
     }
 
-    .edit-btn:hover {
-      background-color: #0369a1;
-    }
-
     .delete-menu-btn {
       background-color: #ef4444;
       color: white;
@@ -902,10 +809,6 @@
       border-radius: 4px;
       cursor: pointer;
       font-size: 12px;
-    }
-
-    .delete-menu-btn:hover {
-      background-color: #dc2626;
     }
 
     footer {
@@ -971,16 +874,10 @@
         border: none;
         background-color: #f8fafc;
         padding: 0;
-        border-radius: 0;
       }
 
       .submenu.open {
         display: block;
-      }
-
-      .submenu li a {
-        padding: 10px 10px 10px 32px;
-        border-top: 1px solid #e2e8f0;
       }
 
       .admin-btn-nav {
@@ -1004,36 +901,10 @@
 
       .product-image {
         height: 160px;
-        padding: 6px;
-        object-fit: contain;
       }
 
       .product-info {
         padding: 10px;
-      }
-
-      .product-title {
-        font-size: 13px;
-        margin-bottom: 8px;
-      }
-
-      .size-label {
-        font-size: 11px;
-      }
-
-      .size-btn {
-        padding: 3px 6px;
-        font-size: 11px;
-      }
-
-      .product-price {
-        font-size: 16px;
-        margin-bottom: 10px;
-      }
-
-      .add-to-cart-btn {
-        padding: 8px;
-        font-size: 12px;
       }
     }
   </style>
@@ -1090,7 +961,7 @@
       <div class="cart-footer">
         <div class="coupon-box">
           <div class="coupon-input-group">
-            <input type="text" id="couponInput" placeholder="Enter Coupon Code (e.g. FLAT10)">
+            <input type="text" id="couponInput" placeholder="Enter Coupon Code">
             <button id="couponBtn" onclick="applyCoupon()">Apply</button>
           </div>
           <div class="coupon-msg" id="couponMsg"></div>
@@ -1161,7 +1032,7 @@
     </div>
   </div>
 
-  <!-- NEW ADMIN LOGIN POPUP (ID & PASSWORD EK SATH) -->
+  <!-- ADMIN LOGIN POPUP -->
   <div class="admin-modal-overlay" id="adminLoginModalOverlay">
     <div class="admin-modal" style="max-width: 400px;">
       <div class="admin-header">
@@ -1290,11 +1161,11 @@
 
             <div class="form-group">
               <label>Menu Title</label>
-              <input type="text" id="menuTitleInput" placeholder="e.g. Kids Collection, Jackets..." required>
+              <input type="text" id="menuTitleInput" placeholder="e.g. Kids Collection..." required>
             </div>
 
             <div class="form-group">
-              <label>Filter Category Slug (English Code, e.g. `kids`, `jackets`)</label>
+              <label>Filter Category Slug (e.g. `kids`)</label>
               <input type="text" id="menuCategoryInput" placeholder="e.g. kids" required>
             </div>
 
@@ -1441,106 +1312,7 @@
       }
     ];
 
-    let products = [
-      { 
-        id: 1, 
-        name: "Casual Cotton Shirt", 
-        category: "shirt", 
-        image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400",
-        isOutOfStock: false,
-        variants: [
-          { size: "S", price: 699 },
-          { size: "M", price: 799 },
-          { size: "L", price: 899 },
-          { size: "XL", price: 999 }
-        ]
-      },
-      { 
-        id: 2, 
-        name: "Formal Slim Fit Shirt", 
-        category: "shirt", 
-        image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400",
-        isOutOfStock: false,
-        variants: [
-          { size: "M", price: 899 },
-          { size: "L", price: 999 },
-          { size: "XL", price: 1099 }
-        ]
-      },
-      { 
-        id: 3, 
-        name: "Blue Denim Jeans", 
-        category: "jeans", 
-        image: "https://images.unsplash.com/photo-1542272604-780c36856842?w=400",
-        isOutOfStock: false,
-        variants: [
-          { size: "30", price: 1199 },
-          { size: "32", price: 1299 },
-          { size: "34", price: 1399 },
-          { size: "36", price: 1499 }
-        ]
-      },
-      { 
-        id: 4, 
-        name: "Black Stretchable Jeans", 
-        category: "jeans", 
-        image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400",
-        isOutOfStock: false,
-        variants: [
-          { size: "28", price: 1399 },
-          { size: "30", price: 1499 },
-          { size: "32", price: 1599 }
-        ]
-      },
-      { 
-        id: 5, 
-        name: "Designer Anarkali Suit", 
-        category: "suit", 
-        image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400",
-        isOutOfStock: false,
-        variants: [
-          { size: "M", price: 1999 },
-          { size: "L", price: 2199 },
-          { size: "XL", price: 2399 }
-        ]
-      },
-      { 
-        id: 6, 
-        name: "Banarasi Silk Saree", 
-        category: "saree", 
-        image: "https://images.unsplash.com/photo-1610030469668-98e550d6193c?w=400",
-        isOutOfStock: false,
-        variants: [
-          { size: "5.5 Meter", price: 3499 },
-          { size: "6.3 Meter", price: 3999 }
-        ]
-      },
-      { 
-        id: 7, 
-        name: "Classic Leather Formal Shoes", 
-        category: "formal-shoes", 
-        image: "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=400",
-        isOutOfStock: false,
-        variants: [
-          { size: "7 UK", price: 1899 },
-          { size: "8 UK", price: 1999 },
-          { size: "9 UK", price: 2099 }
-        ]
-      },
-      { 
-        id: 8, 
-        name: "Party Wear Loafers", 
-        category: "party-wear-shoes", 
-        image: "https://images.unsplash.com/photo-1560343090-f0409e92791a?w=400",
-        isOutOfStock: false,
-        variants: [
-          { size: "7 UK", price: 1699 },
-          { size: "8 UK", price: 1799 },
-          { size: "9 UK", price: 1899 }
-        ]
-      }
-    ];
-
+    let products = [];
     let selectedVariants = {};
     let cart = [];
 
@@ -1641,9 +1413,9 @@
         }
       });
 
-      prodCategorySelect.innerHTML = optionsHTML;
+      if (prodCategorySelect) prodCategorySelect.innerHTML = optionsHTML;
       if (editProdCategorySelect) editProdCategorySelect.innerHTML = optionsHTML;
-      parentMenuSelect.innerHTML = parentOptionsHTML;
+      if (parentMenuSelect) parentMenuSelect.innerHTML = parentOptionsHTML;
     }
 
     function renderProducts(productsToDisplay) {
@@ -1656,7 +1428,7 @@
       }
 
       productsToDisplay.forEach(product => {
-        if (!selectedVariants[product.id]) {
+        if (!selectedVariants[product.id] && product.variants && product.variants.length > 0) {
           selectedVariants[product.id] = {
             size: product.variants[0].size,
             price: product.variants[0].price
@@ -1664,19 +1436,21 @@
         }
 
         let sizeButtonsHTML = '';
-        product.variants.forEach((v) => {
-          const isSelected = selectedVariants[product.id].size === v.size;
-          const activeClass = isSelected ? 'active' : '';
-          sizeButtonsHTML += `
-            <button class="size-btn ${activeClass}" 
-                    onclick="selectSize(${product.id}, '${v.size}', ${v.price}, this)"
-                    ${product.isOutOfStock ? 'disabled' : ''}>
-              ${v.size}
-            </button>
-          `;
-        });
+        if (product.variants && product.variants.length > 0) {
+          product.variants.forEach((v) => {
+            const isSelected = selectedVariants[product.id] && selectedVariants[product.id].size === v.size;
+            const activeClass = isSelected ? 'active' : '';
+            sizeButtonsHTML += `
+              <button class="size-btn ${activeClass}" 
+                      onclick="selectSize('${product.id}', '${v.size}', ${v.price}, this)"
+                      ${product.isOutOfStock ? 'disabled' : ''}>
+                ${v.size}
+              </button>
+            `;
+          });
+        }
 
-        const currentPrice = selectedVariants[product.id].price;
+        const currentPrice = selectedVariants[product.id] ? selectedVariants[product.id].price : (product.variants && product.variants[0] ? product.variants[0].price : 0);
         const isOutOfStock = product.isOutOfStock;
 
         const productHTML = `
@@ -1695,7 +1469,7 @@
               <div class="product-price" id="price-${product.id}">₹${currentPrice.toLocaleString()}</div>
               
               <button class="add-to-cart-btn" 
-                      onclick="addToCart(${product.id})" 
+                      onclick="addToCart('${product.id}')" 
                       ${isOutOfStock ? 'disabled' : ''}>
                 ${isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
               </button>
@@ -1708,8 +1482,10 @@
 
     function selectSize(productId, selectedSize, price, btnElement) {
       const card = document.getElementById(`product-${productId}`);
-      const allBtns = card.querySelectorAll('.size-btn');
-      allBtns.forEach(btn => btn.classList.remove('active'));
+      if (card) {
+        const allBtns = card.querySelectorAll('.size-btn');
+        allBtns.forEach(btn => btn.classList.remove('active'));
+      }
 
       btnElement.classList.add('active');
 
@@ -1718,7 +1494,8 @@
         price: price
       };
 
-      document.getElementById(`price-${productId}`).innerText = `₹${price.toLocaleString()}`;
+      const priceElem = document.getElementById(`price-${productId}`);
+      if (priceElem) priceElem.innerText = `₹${price.toLocaleString()}`;
     }
 
     function toggleCart() {
@@ -1727,12 +1504,12 @@
     }
 
     function addToCart(productId) {
-      const product = products.find(p => p.id === productId);
-      if (product.isOutOfStock) return;
+      const product = products.find(p => String(p.id) === String(productId));
+      if (!product || product.isOutOfStock) return;
 
-      const variant = selectedVariants[productId];
+      const variant = selectedVariants[productId] || (product.variants ? product.variants[0] : { size: 'Free', price: 0 });
 
-      const existingItem = cart.find(item => item.id === productId && item.size === variant.size);
+      const existingItem = cart.find(item => String(item.id) === String(productId) && item.size === variant.size);
 
       if (existingItem) {
         existingItem.qty += 1;
@@ -1965,7 +1742,7 @@
       renderProducts(filtered);
     }
 
-    /* ADMIN LOGIN & DASHBOARD LOGIC */
+    /* ADMIN DASHBOARD LOGIC */
     function openAdminLoginModal() {
       document.getElementById('adminLoginForm').reset();
       document.getElementById('loginErrorMsg').style.display = 'none';
@@ -2076,7 +1853,6 @@
       }
 
       const newProduct = {
-        id: Date.now(),
         name: name,
         category: category,
         image: selectedBase64Image,
@@ -2084,30 +1860,16 @@
         variants: variants
       };
 
-      // Local memory aur Firebase dono me save karein
-      products.unshift(newProduct);
-
-      // 1. Firebase Cloud Sync
       if (window.saveProductToDatabase) {
-          window.saveProductToDatabase(newProduct);
+        window.saveProductToDatabase(newProduct);
       }
 
-      // 2. Local Backup
-      localStorage.setItem('my_shop_products', JSON.stringify(products));
-      resetFilter();
-      populateProductManagerUI();
       closeAdminPanel();
-      alert("Product added successfully with uploaded photo!");
+      alert("Product added successfully!");
 
       document.getElementById('addProductForm').reset();
       selectedBase64Image = "";
       document.getElementById('imagePreviewBox').innerHTML = `<span>Photo Preview will appear here</span>`;
-      document.getElementById('variantsContainer').innerHTML = `
-        <div class="variant-row">
-          <input type="text" placeholder="Size (e.g. S, M, 8 UK)" class="variant-size" required>
-          <input type="number" placeholder="Price (₹)" class="variant-price" required>
-        </div>
-      `;
     }
 
     function populateProductManagerUI() {
@@ -2129,46 +1891,48 @@
             <td><code>${product.category}</code></td>
             <td>
               <label class="toggle-switch-label" style="font-size: 12px;">
-                <input type="checkbox" ${product.isOutOfStock ? 'checked' : ''} onchange="toggleStockStatus(${product.id}, this.checked)">
+                <input type="checkbox" ${product.isOutOfStock ? 'checked' : ''} onchange="toggleStockStatus('${product.id}', this.checked)">
                 ${product.isOutOfStock ? '<span style="color:#ef4444; font-weight:700;">Out of Stock</span>' : '<span style="color:#16a34a; font-weight:700;">In Stock</span>'}
               </label>
             </td>
             <td>
-              <button class="edit-btn" onclick="openEditModal(${product.id})"><i class="fa-solid fa-pen"></i> Edit</button>
-              <button class="delete-menu-btn" onclick="deleteProduct(${product.id})">Delete</button>
+              <button class="edit-btn" onclick="openEditModal('${product.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
+              <button class="delete-menu-btn" onclick="deleteProduct('${product.id}')">Delete</button>
             </td>
           </tr>
         `;
       });
     }
 
-    function toggleStockStatus(productId, isChecked) {
-        // 1. Local products array update
-        const product = products.find(p => p.id === productId || p.id == productId);
-        if (!product) return;
-
+    // 1. FIXED OUT OF STOCK TOGGLE
+    async function toggleStockStatus(productId, isChecked) {
+      const product = products.find(p => String(p.id) === String(productId));
+      if (product) {
         product.isOutOfStock = isChecked;
-        
-        // 2. Immediate UI Refresh
-        renderProducts(products);
-        populateProductManagerUI();
-        localStorage.setItem('my_shop_products', JSON.stringify(products));
+      }
 
-        // 3. Firestore Document Update
-        if (typeof db !== 'undefined' && product.id) {
-            import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js")
-                .then(({ doc, updateDoc }) => {
-                    const docRef = doc(db, "products", String(product.id));
-                    updateDoc(docRef, { isOutOfStock: isChecked })
-                        .catch(err => console.error("Firestore update err:", err));
-                })
-                .catch(err => console.error("Import err:", err));
+      localStorage.setItem('my_shop_products', JSON.stringify(products));
+      renderProducts(products);
+      populateProductManagerUI();
+
+      if (window.db) {
+        try {
+          const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+          const docRef = doc(window.db, "products", String(productId));
+          await updateDoc(docRef, { isOutOfStock: isChecked });
+        } catch (err) {
+          console.error("Firestore Stock Update Error:", err);
         }
+      }
     }
 
+    // 2. FIXED EDIT MODAL OPENER
     function openEditModal(productId) {
-      const product = products.find(p => p.id === productId);
-      if (!product) return;
+      const product = products.find(p => String(p.id) === String(productId));
+      if (!product) {
+        alert("Product not found!");
+        return;
+      }
 
       document.getElementById('editProdId').value = product.id;
       document.getElementById('editProdName').value = product.name;
@@ -2181,9 +1945,13 @@
 
       const container = document.getElementById('editVariantsContainer');
       container.innerHTML = "";
-      product.variants.forEach(v => {
-        addVariantRow('editVariantsContainer', v.size, v.price);
-      });
+      if (product.variants && product.variants.length > 0) {
+        product.variants.forEach(v => {
+          addVariantRow('editVariantsContainer', v.size, v.price);
+        });
+      } else {
+        addVariantRow('editVariantsContainer', 'M', '500');
+      }
 
       document.getElementById('editProductModalOverlay').classList.add('open');
     }
@@ -2192,10 +1960,11 @@
       document.getElementById('editProductModalOverlay').classList.remove('open');
     }
 
-    function handleProductUpdate(e) {
+    // 3. FIXED PRODUCT UPDATE SUBMIT
+    async function handleProductUpdate(e) {
       e.preventDefault();
 
-      const prodId = Number(document.getElementById('editProdId').value);
+      const prodId = document.getElementById('editProdId').value;
       const name = document.getElementById('editProdName').value;
       const category = document.getElementById('editProdCategory').value;
       const isOutOfStock = document.getElementById('editProdOutOfStock').checked;
@@ -2219,7 +1988,7 @@
         return;
       }
 
-      const prodIndex = products.findIndex(p => p.id === prodId);
+      const prodIndex = products.findIndex(p => String(p.id) === String(prodId));
       if (prodIndex !== -1) {
         products[prodIndex].name = name;
         products[prodIndex].category = category;
@@ -2233,15 +2002,43 @@
         };
       }
 
+      if (window.db) {
+        try {
+          const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+          const docRef = doc(window.db, "products", String(prodId));
+          await updateDoc(docRef, {
+            name: name,
+            category: category,
+            image: editBase64Image,
+            isOutOfStock: isOutOfStock,
+            variants: variants
+          });
+        } catch (err) {
+          console.error("Firestore Update Error:", err);
+        }
+      }
+
+      localStorage.setItem('my_shop_products', JSON.stringify(products));
       renderProducts(products);
       populateProductManagerUI();
       closeEditModal();
       alert("Product updated successfully!");
     }
 
-    function deleteProduct(productId) {
+    async function deleteProduct(productId) {
       if (confirm("Are you sure you want to delete this product?")) {
-        products = products.filter(p => p.id !== productId);
+        products = products.filter(p => String(p.id) !== String(productId));
+
+        if (window.db) {
+          try {
+            const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+            await deleteDoc(doc(window.db, "products", String(productId)));
+          } catch (err) {
+            console.error("Firestore Delete Error:", err);
+          }
+        }
+
+        localStorage.setItem('my_shop_products', JSON.stringify(products));
         renderProducts(products);
         populateProductManagerUI();
         alert("Product deleted successfully!");
@@ -2291,6 +2088,7 @@
 
     function populateMenuManagerUI() {
       const tbody = document.getElementById('menuTableBody');
+      if (!tbody) return;
       tbody.innerHTML = '';
 
       menuData.forEach(mainMenu => {
@@ -2335,18 +2133,10 @@
       renderMenu();
     }
 
-    // Initial Initialization
     renderMenu();
-    
-    // LocalStorage se saved products load karein
-    const savedProducts = localStorage.getItem('my_shop_products');
-    if (savedProducts) {
-        products = JSON.parse(savedProducts);
-    }
-    renderProducts(products);
   </script>
 
-  <!-- Firebase Firestore Realtime Connection -->
+  <!-- Firebase Firestore Integration -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -2363,26 +2153,22 @@
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
     
-    // 1. Live Sync: Kisi bhi phone par data apne aap show hoga
+    // Live Realtime Firestore Sync
     onSnapshot(collection(window.db, "products"), (snapshot) => {
       let list = [];
       snapshot.forEach((d) => {
-        // d.id (asli Firebase doc ID) sabse last mein aayegi taaki koi badal na sake
         list.push({ ...d.data(), id: d.id });
       });
-      if (list.length > 0) {
-        products = list;
-        if (typeof renderProducts === 'function') renderProducts(products);
-        if (typeof populateProductManagerUI === 'function') populateProductManagerUI();
-      }
+      products = list;
+      renderProducts(products);
+      populateProductManagerUI();
     });
 
-    // 2. Global Save Function (Sabhi phones tak data bhejne ke liye)
     window.saveProductToDatabase = async function(productData) {
       try {
         await addDoc(collection(window.db, "products"), productData);
       } catch (e) {
-        console.error("Firebase Error: ", e);
+        console.error("Firebase Add Error: ", e);
       }
     };
   </script>
