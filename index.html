@@ -2085,15 +2085,15 @@
       };
 
       // Local memory aur Firebase dono me save karein
-products.unshift(newProduct);
+      products.unshift(newProduct);
 
-// 1. Firebase Cloud Sync (Taaki dusre phones par jaye)
-if (window.saveProductToDatabase) {
-    window.saveProductToDatabase(newProduct);
-}
+      // 1. Firebase Cloud Sync
+      if (window.saveProductToDatabase) {
+          window.saveProductToDatabase(newProduct);
+      }
 
-// 2. Local Backup
-localStorage.setItem('my_shop_products', JSON.stringify(products));
+      // 2. Local Backup
+      localStorage.setItem('my_shop_products', JSON.stringify(products));
       resetFilter();
       populateProductManagerUI();
       closeAdminPanel();
@@ -2141,31 +2141,30 @@ localStorage.setItem('my_shop_products', JSON.stringify(products));
         `;
       });
     }
-async function toggleStockStatus(productId, isChecked) {
-    // 1. Array mein local status badlein
-    const product = products.find(p => p.id === productId || p.id == productId);
-    if (!product) return;
 
-    product.isOutOfStock = isChecked;
-    
-    // 2. Immediate UI Update
-    renderProducts(products);
-    populateProductManagerUI();
+    function toggleStockStatus(productId, isChecked) {
+        // 1. Local products array update
+        const product = products.find(p => p.id === productId || p.id == productId);
+        if (!product) return;
 
-    // 3. Direct Firestore Document Update (No Duplicates!)
-    if (typeof db !== 'undefined' && product.id) {
-        try {
-            const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-            const docRef = doc(db, "products", String(product.id));
-            await updateDoc(docRef, {
-                isOutOfStock: isChecked
-            });
-        } catch (err) {
-            console.error("Firestore Update Error: ", err);
+        product.isOutOfStock = isChecked;
+        
+        // 2. Immediate UI Refresh
+        renderProducts(products);
+        populateProductManagerUI();
+        localStorage.setItem('my_shop_products', JSON.stringify(products));
+
+        // 3. Firestore Document Update
+        if (typeof db !== 'undefined' && product.id) {
+            import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js")
+                .then(({ doc, updateDoc }) => {
+                    const docRef = doc(db, "products", String(product.id));
+                    updateDoc(docRef, { isOutOfStock: isChecked })
+                        .catch(err => console.error("Firestore update err:", err));
+                })
+                .catch(err => console.error("Import err:", err));
         }
     }
-}
-}
 
     function openEditModal(productId) {
       const product = products.find(p => p.id === productId);
@@ -2338,52 +2337,54 @@ async function toggleStockStatus(productId, isChecked) {
 
     // Initial Initialization
     renderMenu();
+    
     // LocalStorage se saved products load karein
-const savedProducts = localStorage.getItem('my_shop_products');
-if (savedProducts) {
-    products = JSON.parse(savedProducts);
-}
-renderProducts(products);
-  </script>
-<!-- Firebase Firestore Realtime Connection -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AizaSyC6EEk-7jh_1K2cWGuTXTQqzPTrGaya0LI",
-    authDomain: "aligarh-shop-collections.firebaseapp.com",
-    projectId: "aligarh-shop-collections",
-    storageBucket: "aligarh-shop-collections.firebasestorage.app",
-    messagingSenderId: "501323077099",
-    appId: "1:501323077099:web:2bca4a2cc4235bcd5af5ae"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  
-// 1. Live Sync: Kisi bhi phone par data apne aap show hoga
-onSnapshot(collection(db, "products"), (snapshot) => {
-  let list = [];
-  snapshot.forEach((d) => {
-    // d.id (asli Firebase doc ID) sabse last mein aayegi taaki koi badal na sake
-    list.push({ ...d.data(), id: d.id });
-  });
-  if (list.length > 0) {
-    products = list;
-    if (typeof renderProducts === 'function') renderProducts(products);
-    if (typeof populateProductManagerUI === 'function') populateProductManagerUI();
-  }
-});
-
-  // 2. Global Save Function (Sabhi phones tak data bhejne ke liye)
-  window.saveProductToDatabase = async function(productData) {
-    try {
-      await addDoc(collection(db, "products"), productData);
-    } catch (e) {
-      console.error("Firebase Error: ", e);
+    const savedProducts = localStorage.getItem('my_shop_products');
+    if (savedProducts) {
+        products = JSON.parse(savedProducts);
     }
-  };
-</script>
+    renderProducts(products);
+  </script>
+
+  <!-- Firebase Firestore Realtime Connection -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AizaSyC6EEk-7jh_1K2cWGuTXTQqzPTrGaya0LI",
+      authDomain: "aligarh-shop-collections.firebaseapp.com",
+      projectId: "aligarh-shop-collections",
+      storageBucket: "aligarh-shop-collections.firebasestorage.app",
+      messagingSenderId: "501323077099",
+      appId: "1:501323077099:web:2bca4a2cc4235bcd5af5ae"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+    
+    // 1. Live Sync: Kisi bhi phone par data apne aap show hoga
+    onSnapshot(collection(window.db, "products"), (snapshot) => {
+      let list = [];
+      snapshot.forEach((d) => {
+        // d.id (asli Firebase doc ID) sabse last mein aayegi taaki koi badal na sake
+        list.push({ ...d.data(), id: d.id });
+      });
+      if (list.length > 0) {
+        products = list;
+        if (typeof renderProducts === 'function') renderProducts(products);
+        if (typeof populateProductManagerUI === 'function') populateProductManagerUI();
+      }
+    });
+
+    // 2. Global Save Function (Sabhi phones tak data bhejne ke liye)
+    window.saveProductToDatabase = async function(productData) {
+      try {
+        await addDoc(collection(window.db, "products"), productData);
+      } catch (e) {
+        console.error("Firebase Error: ", e);
+      }
+    };
+  </script>
 </body>
-  </html>
+</html>
