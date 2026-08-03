@@ -2085,6 +2085,7 @@
       };
 
       products.unshift(newProduct);
+      localStorage.setItem('my_shop_products', JSON.stringify(products));
       resetFilter();
       populateProductManagerUI();
       closeAdminPanel();
