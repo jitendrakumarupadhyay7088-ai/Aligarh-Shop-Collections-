@@ -2141,31 +2141,30 @@ localStorage.setItem('my_shop_products', JSON.stringify(products));
         `;
       });
     }
-
-    async function toggleStockStatus(productId, isChecked) {
-    // 1. Local products array update karein
+async function toggleStockStatus(productId, isChecked) {
+    // 1. Array mein local status badlein
     const product = products.find(p => p.id === productId || p.id == productId);
-    if (product) {
-        product.isOutOfStock = isChecked;
-        
-        // 2. UI Refresh
-        renderProducts(products);
-        populateProductManagerUI();
-        localStorage.setItem('my_shop_products', JSON.stringify(products));
+    if (!product) return;
 
-        // 3. Directly update specific document in Firebase (No Duplicate Magic)
-        if (typeof db !== 'undefined' && product.id) {
-            try {
-                const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-                const docRef = doc(db, "products", String(product.id));
-                await updateDoc(docRef, {
-                    isOutOfStock: isChecked
-                });
-            } catch (err) {
-                console.error("Stock update failed: ", err);
-            }
+    product.isOutOfStock = isChecked;
+    
+    // 2. Immediate UI Update
+    renderProducts(products);
+    populateProductManagerUI();
+
+    // 3. Direct Firestore Document Update (No Duplicates!)
+    if (typeof db !== 'undefined' && product.id) {
+        try {
+            const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+            const docRef = doc(db, "products", String(product.id));
+            await updateDoc(docRef, {
+                isOutOfStock: isChecked
+            });
+        } catch (err) {
+            console.error("Firestore Update Error: ", err);
         }
     }
+}
 }
 
     function openEditModal(productId) {
@@ -2362,17 +2361,20 @@ renderProducts(products);
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-
-  // 1. Live Sync: Kisi bhi phone par data apne aap show hoga
+  
+// 1. Live Sync: Kisi bhi phone par data apne aap show hoga
 onSnapshot(collection(db, "products"), (snapshot) => {
-    let list = [];
-    snapshot.forEach((d) => list.push({ id: d.id, ...d.data() }));
-    if (list.length > 0) {
-      products = list;
-      if (typeof renderProducts === 'function') renderProducts(products);
-      if (typeof populateProductManagerUI === 'function') populateProductManagerUI();
-    }
+  let list = [];
+  snapshot.forEach((d) => {
+    // d.id (asli Firebase doc ID) sabse last mein aayegi taaki koi badal na sake
+    list.push({ ...d.data(), id: d.id });
   });
+  if (list.length > 0) {
+    products = list;
+    if (typeof renderProducts === 'function') renderProducts(products);
+    if (typeof populateProductManagerUI === 'function') populateProductManagerUI();
+  }
+});
 
   // 2. Global Save Function (Sabhi phones tak data bhejne ke liye)
   window.saveProductToDatabase = async function(productData) {
