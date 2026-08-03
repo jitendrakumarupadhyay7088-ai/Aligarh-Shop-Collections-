@@ -2315,5 +2315,24 @@
     renderMenu();
     renderProducts(products);
   </script>
+  <!-- Firebase SDK & Firestore Connection -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  // Aapki Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AizaSyC6EEk-7jh_1K2cWGuTXTQqzPTrGaya0LI",
+    authDomain: "aligarh-shop-collections.firebaseapp.com",
+    projectId: "aligarh-shop-collections",
+    storageBucket: "aligarh-shop-collections.firebasestorage.app",
+    messagingSenderId: "501323077099",
+    appId: "1:501323077099:web:2bca4a2cc4235bcd5af5ae"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window.db = db; // Global access ke liye
+</script>
 </body>
   </html>
