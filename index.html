@@ -2347,12 +2347,13 @@ renderProducts(products);
   const db = getFirestore(app);
 
   // 1. Live Sync: Kisi bhi phone par data apne aap show hoga
-  onSnapshot(collection(db, "products"), (snapshot) => {
+onSnapshot(collection(db, "products"), (snapshot) => {
     let list = [];
     snapshot.forEach((d) => list.push({ id: d.id, ...d.data() }));
-    if (list.length > 0 && typeof renderProducts === 'function') {
+    if (list.length > 0) {
       products = list;
-      renderProducts(products);
+      if (typeof renderProducts === 'function') renderProducts(products);
+      if (typeof populateProductManagerUI === 'function') populateProductManagerUI();
     }
   });
 
