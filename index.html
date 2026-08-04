@@ -21,6 +21,7 @@
       color: #0f172a;
     }
 
+    /* Premium Dark Slate Header */
     header {
       background-color: #0f172a;
       color: #ffffff;
@@ -42,6 +43,7 @@
       gap: 15px;
     }
 
+    /* Mobile Menu Toggle Button */
     .mobile-menu-btn {
       display: none;
       background: none;
@@ -66,6 +68,7 @@
       color: #38bdf8;
     }
 
+    /* Cart Icon Styling */
     .cart-icon {
       position: relative;
       font-size: 14px;
@@ -94,6 +97,7 @@
       font-weight: 700;
     }
 
+    /* Search Bar Styling */
     .search-container {
       display: flex;
       flex: 1;
@@ -146,6 +150,7 @@
       }
     }
 
+    /* Clean Navigation Bar */
     nav {
       background-color: #ffffff;
       border-bottom: 1px solid #e2e8f0;
@@ -193,6 +198,7 @@
       color: #ffffff !important;
     }
 
+    /* Submenu (Dropdown) */
     .submenu {
       display: none;
       position: absolute;
@@ -230,6 +236,7 @@
       }
     }
 
+    /* Main Products Section */
     .main-content {
       padding: 40px 6%;
       min-height: 80vh;
@@ -414,6 +421,7 @@
       background-color: #0369a1;
     }
 
+    /* Cart Overlay & Modal */
     .cart-overlay {
       position: fixed;
       top: 0;
@@ -603,6 +611,7 @@
       margin-top: 60px;
     }
 
+    /* Modal Styling */
     .admin-modal-overlay {
       position: fixed;
       top: 0;
@@ -811,6 +820,7 @@
       margin-top: 40px;
     }
 
+    /* MOBILE RESPONSIVE STYLES */
     @media (max-width: 768px) {
       .mobile-menu-btn {
         display: block;
@@ -1031,8 +1041,8 @@
       <div class="admin-body">
         <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
           <div class="form-group">
-            <label><i class="fa-solid fa-envelope"></i> Admin Email</label>
-            <input type="email" id="adminLoginId" placeholder="admin@example.com" required>
+            <label><i class="fa-solid fa-user"></i> Admin ID</label>
+            <input type="text" id="adminLoginId" placeholder="Enter Admin ID" required>
           </div>
 
           <div class="form-group">
@@ -1041,7 +1051,7 @@
           </div>
 
           <div id="loginErrorMsg" style="color: #ef4444; font-size: 13px; font-weight: 600; margin-bottom: 12px; display: none; text-align: center;">
-            Incorrect Email or Password!
+            Incorrect Admin ID or Password!
           </div>
 
           <button type="submit" class="submit-product-btn" style="background-color: #0f172a;">Login</button>
@@ -1055,10 +1065,7 @@
     <div class="admin-modal">
       <div class="admin-header">
         <h3><i class="fa-solid fa-sliders"></i> Admin Dashboard</h3>
-        <div style="display: flex; gap: 10px; align-items: center;">
-          <button onclick="handleAdminLogout()" style="background:#ef4444; color:white; border:none; padding: 6px 12px; border-radius: 6px; cursor:pointer; font-weight:600; font-size:12px;">Logout</button>
-          <button class="close-cart-btn" onclick="closeAdminPanel()"><i class="fa-solid fa-xmark"></i></button>
-        </div>
+        <button class="close-cart-btn" onclick="closeAdminPanel()"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
       <div class="admin-tabs">
@@ -1235,29 +1242,12 @@
     &copy; 2026 Aligarh Shop Collection. All rights reserved.
   </footer>
 
-  <!-- Firebase & App Script (Merged in Module Scope for synchronous execution) -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AizaSyC6EEk-7jh_1K2cWGuTXTQqzPTrGaya0LI",
-      authDomain: "aligarh-shop-collections.firebaseapp.com",
-      projectId: "aligarh-shop-collections",
-      storageBucket: "aligarh-shop-collections.firebasestorage.app",
-      messagingSenderId: "501323077099",
-      appId: "1:501323077099:web:2bca4a2cc4235bcd5af5ae"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
-    window.db = db;
-    window.auth = auth;
-
+  <script>
     const YOUR_WHATSAPP_NUMBER = "917088484025"; 
+    
+    // Admin Credentials
+    const ADMIN_ID = "Jitendra"; 
+    const ADMIN_PASSWORD = "Jitendra@123"; 
 
     const AVAILABLE_COUPONS = {
       "FLAT10": { type: "flat", value: 10 },
@@ -1265,11 +1255,33 @@
       "FLAT100": { type: "flat", value: 100 }
     };
 
-    let currentUser = null;
     let appliedCoupon = null;
     let selectedBase64Image = "";
     let editBase64Image = ""; 
 
+    function toggleMobileMenu() {
+      const nav = document.getElementById('navbar');
+      const icon = document.getElementById('menuIcon');
+      nav.classList.toggle('active');
+
+      if (nav.classList.contains('active')) {
+        icon.className = "fa-solid fa-xmark";
+      } else {
+        icon.className = "fa-solid fa-bars";
+      }
+    }
+
+    function toggleSubmenu(event, subMenuId) {
+      if (window.innerWidth <= 768) {
+        event.preventDefault();
+        const submenu = document.getElementById(subMenuId);
+        if (submenu) {
+          submenu.classList.toggle('open');
+        }
+      }
+    }
+
+    // Default initial menu structure fallback
     const defaultMenuData = [
       {
         id: "m1",
@@ -1305,29 +1317,6 @@
     let selectedVariants = {};
     let cart = [];
 
-    // Make utility functions global for inline HTML handlers
-    window.toggleMobileMenu = function() {
-      const nav = document.getElementById('navbar');
-      const icon = document.getElementById('menuIcon');
-      nav.classList.toggle('active');
-
-      if (nav.classList.contains('active')) {
-        icon.className = "fa-solid fa-xmark";
-      } else {
-        icon.className = "fa-solid fa-bars";
-      }
-    };
-
-    window.toggleSubmenu = function(event, subMenuId) {
-      if (window.innerWidth <= 768) {
-        event.preventDefault();
-        const submenu = document.getElementById(subMenuId);
-        if (submenu) {
-          submenu.classList.toggle('open');
-        }
-      }
-    };
-
     function renderMenu() {
       const navContainer = document.getElementById('mainMenuBar');
       let navHTML = `<li class="menu-item"><a href="#" onclick="handleCategoryClick('all')">Home</a></li>`;
@@ -1357,7 +1346,7 @@
 
       navHTML += `
         <li class="menu-item" style="margin-left: auto;">
-          <a href="#" class="admin-btn-nav" onclick="openAdminPanelOrLogin()"><i class="fa-solid fa-user-lock"></i> ${currentUser ? 'Admin Dashboard' : 'Admin Panel'}</a>
+          <a href="#" class="admin-btn-nav" onclick="openAdminLoginModal()"><i class="fa-solid fa-user-lock"></i> Admin Panel</a>
         </li>
       `;
 
@@ -1367,7 +1356,7 @@
       populateProductManagerUI();
     }
 
-    window.handleCategoryClick = function(categorySlug, event = null, subMenuId = null) {
+    function handleCategoryClick(categorySlug, event = null, subMenuId = null) {
       if (event && window.innerWidth <= 768 && subMenuId) {
         toggleSubmenu(event, subMenuId);
       }
@@ -1382,7 +1371,7 @@
         document.getElementById('navbar').classList.remove('active');
         document.getElementById('menuIcon').className = "fa-solid fa-bars";
       }
-    };
+    }
 
     function filterProducts(categorySlug) {
       let filtered = [];
@@ -1492,7 +1481,7 @@
       });
     }
 
-    window.selectSize = function(productId, selectedSize, price, btnElement) {
+    function selectSize(productId, selectedSize, price, btnElement) {
       const card = document.getElementById(`product-${productId}`);
       if (card) {
         const allBtns = card.querySelectorAll('.size-btn');
@@ -1508,14 +1497,14 @@
 
       const priceElem = document.getElementById(`price-${productId}`);
       if (priceElem) priceElem.innerText = `₹${price.toLocaleString()}`;
-    };
+    }
 
-    window.toggleCart = function() {
+    function toggleCart() {
       const overlay = document.getElementById('cartOverlay');
       overlay.classList.toggle('open');
-    };
+    }
 
-    window.addToCart = function(productId) {
+    function addToCart(productId) {
       const product = products.find(p => String(p.id) === String(productId));
       if (!product || product.isOutOfStock) return;
 
@@ -1538,9 +1527,9 @@
 
       updateCartUI();
       toggleCart();
-    };
+    }
 
-    window.applyCoupon = function() {
+    function applyCoupon() {
       const input = document.getElementById('couponInput');
       const msg = document.getElementById('couponMsg');
       const btn = document.getElementById('couponBtn');
@@ -1579,7 +1568,7 @@
         msg.className = "coupon-msg error";
         msg.innerText = "Invalid Coupon Code!";
       }
-    };
+    }
 
     function updateCartUI() {
       const cartBody = document.getElementById('cartBody');
@@ -1656,32 +1645,32 @@
       cartTotal.innerText = `₹${grandTotal.toLocaleString()}`;
     }
 
-    window.changeQty = function(index, change) {
+    function changeQty(index, change) {
       cart[index].qty += change;
       if (cart[index].qty <= 0) {
         cart.splice(index, 1);
       }
       updateCartUI();
-    };
+    }
 
-    window.removeFromCart = function(index) {
+    function removeFromCart(index) {
       cart.splice(index, 1);
       updateCartUI();
-    };
+    }
 
-    window.openCustomerDetailsModal = function() {
+    function openCustomerDetailsModal() {
       if (cart.length === 0) {
         alert("Your cart is empty!");
         return;
       }
       document.getElementById('customerModalOverlay').classList.add('open');
-    };
+    }
 
-    window.closeCustomerDetailsModal = function() {
+    function closeCustomerDetailsModal() {
       document.getElementById('customerModalOverlay').classList.remove('open');
-    };
+    }
 
-    window.sendWhatsAppOrder = function(event) {
+    function sendWhatsAppOrder(event) {
       event.preventDefault();
 
       const name = document.getElementById('custName').value.trim();
@@ -1736,15 +1725,15 @@
 
       closeCustomerDetailsModal();
       toggleCart();
-    };
+    }
 
-    window.resetFilter = function() {
+    function resetFilter() {
       document.getElementById('categoryTitle').innerText = "All Collections";
       document.getElementById('searchInput').value = "";
       renderProducts(products);
-    };
+    }
 
-    window.searchProducts = function() {
+    function searchProducts() {
       const query = document.getElementById('searchInput').value.toLowerCase();
       const filtered = products.filter(p => 
         p.name.toLowerCase().includes(query) || 
@@ -1752,67 +1741,45 @@
       );
       document.getElementById('categoryTitle').innerText = `Search Results for "${query}"`;
       renderProducts(filtered);
-    };
+    }
 
-    /* ADMIN AUTHENTICATION LOGIC FIXED */
-    window.openAdminPanelOrLogin = function() {
-      if (currentUser) {
-        document.getElementById('adminModalOverlay').classList.add('open');
-      } else {
-        openAdminLoginModal();
-      }
-    };
-
-    window.openAdminLoginModal = function() {
+    /* ADMIN DASHBOARD LOGIC */
+    function openAdminLoginModal() {
       document.getElementById('adminLoginForm').reset();
       document.getElementById('loginErrorMsg').style.display = 'none';
       document.getElementById('adminLoginModalOverlay').classList.add('open');
-    };
+    }
 
-    window.closeAdminLoginModal = function() {
+    function closeAdminLoginModal() {
       document.getElementById('adminLoginModalOverlay').classList.remove('open');
-    };
+    }
 
-    window.handleAdminLogin = async function(e) {
+    function handleAdminLogin(e) {
       e.preventDefault();
-      const email = document.getElementById('adminLoginId').value.trim();
+      const idInput = document.getElementById('adminLoginId').value.trim();
       const passInput = document.getElementById('adminLoginPass').value.trim();
 
-      try {
-        await signInWithEmailAndPassword(auth, email, passInput);
+      if (idInput === ADMIN_ID && passInput === ADMIN_PASSWORD) {
         closeAdminLoginModal();
         document.getElementById('adminModalOverlay').classList.add('open');
-      } catch (error) {
-        console.error("Login Error:", error);
-        const errBox = document.getElementById('loginErrorMsg');
-        errBox.innerText = "Incorrect Email or Password!";
-        errBox.style.display = 'block';
+      } else {
+        document.getElementById('loginErrorMsg').style.display = 'block';
       }
-    };
+    }
 
-    window.handleAdminLogout = async function() {
-      try {
-        await signOut(auth);
-        closeAdminPanel();
-        alert("Logged out successfully!");
-      } catch (error) {
-        console.error("Logout Error:", error);
-      }
-    };
-
-    window.switchAdminTab = function(tabId, btnElement) {
+    function switchAdminTab(tabId, btnElement) {
       document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
 
       btnElement.classList.add('active');
       document.getElementById(tabId).classList.add('active');
-    };
+    }
 
-    window.closeAdminPanel = function() {
+    function closeAdminPanel() {
       document.getElementById('adminModalOverlay').classList.remove('open');
-    };
+    }
 
-    window.addVariantRow = function(containerId, sizeVal = "", priceVal = "") {
+    function addVariantRow(containerId, sizeVal = "", priceVal = "") {
       const container = document.getElementById(containerId);
       const row = document.createElement('div');
       row.className = 'variant-row';
@@ -1822,9 +1789,9 @@
         <button type="button" class="remove-variant-btn" onclick="this.parentElement.remove()"><i class="fa-solid fa-trash-can"></i></button>
       `;
       container.appendChild(row);
-    };
+    }
 
-    window.previewImage = function(event) {
+    function previewImage(event) {
       const file = event.target.files[0];
       const previewBox = document.getElementById('imagePreviewBox');
 
@@ -1839,9 +1806,9 @@
         selectedBase64Image = "";
         previewBox.innerHTML = `<span>Photo Preview will appear here</span>`;
       }
-    };
+    }
 
-    window.previewEditImage = function(event) {
+    function previewEditImage(event) {
       const file = event.target.files[0];
       const previewBox = document.getElementById('editImagePreviewBox');
 
@@ -1853,9 +1820,9 @@
         };
         reader.readAsDataURL(file);
       }
-    };
+    }
 
-    window.handleNewProductSubmit = async function(e) {
+    function handleNewProductSubmit(e) {
       e.preventDefault();
       
       const name = document.getElementById('newProdName').value;
@@ -1894,17 +1861,17 @@
         variants: variants
       };
 
-      try {
-        await addDoc(collection(db, "products"), newProduct);
-        closeAdminPanel();
-        alert("Product added successfully!");
-        document.getElementById('addProductForm').reset();
-        selectedBase64Image = "";
-        document.getElementById('imagePreviewBox').innerHTML = `<span>Photo Preview will appear here</span>`;
-      } catch (err) {
-        console.error("Firebase Add Error:", err);
+      if (window.saveProductToDatabase) {
+        window.saveProductToDatabase(newProduct);
       }
-    };
+
+      closeAdminPanel();
+      alert("Product added successfully!");
+
+      document.getElementById('addProductForm').reset();
+      selectedBase64Image = "";
+      document.getElementById('imagePreviewBox').innerHTML = `<span>Photo Preview will appear here</span>`;
+    }
 
     function populateProductManagerUI() {
       const tbody = document.getElementById('productsTableBody');
@@ -1938,7 +1905,7 @@
       });
     }
 
-    window.toggleStockStatus = async function(productId, isChecked) {
+    async function toggleStockStatus(productId, isChecked) {
       const product = products.find(p => String(p.id) === String(productId));
       if (product) {
         product.isOutOfStock = isChecked;
@@ -1947,15 +1914,18 @@
       renderProducts(products);
       populateProductManagerUI();
 
-      try {
-        const docRef = doc(db, "products", String(productId));
-        await updateDoc(docRef, { isOutOfStock: isChecked });
-      } catch (err) {
-        console.error("Firestore Stock Update Error:", err);
+      if (window.db) {
+        try {
+          const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+          const docRef = doc(window.db, "products", String(productId));
+          await updateDoc(docRef, { isOutOfStock: isChecked });
+        } catch (err) {
+          console.error("Firestore Stock Update Error:", err);
+        }
       }
-    };
+    }
 
-    window.openEditModal = function(productId) {
+    function openEditModal(productId) {
       const product = products.find(p => String(p.id) === String(productId));
       if (!product) {
         alert("Product not found!");
@@ -1982,13 +1952,13 @@
       }
 
       document.getElementById('editProductModalOverlay').classList.add('open');
-    };
+    }
 
-    window.closeEditModal = function() {
+    function closeEditModal() {
       document.getElementById('editProductModalOverlay').classList.remove('open');
-    };
+    }
 
-    window.handleProductUpdate = async function(e) {
+    async function handleProductUpdate(e) {
       e.preventDefault();
 
       const prodId = document.getElementById('editProdId').value;
@@ -2015,35 +1985,62 @@
         return;
       }
 
-      try {
-        const docRef = doc(db, "products", String(prodId));
-        await updateDoc(docRef, {
-          name: name,
-          category: category,
-          image: editBase64Image,
-          isOutOfStock: isOutOfStock,
-          variants: variants
-        });
+      const prodIndex = products.findIndex(p => String(p.id) === String(prodId));
+      if (prodIndex !== -1) {
+        products[prodIndex].name = name;
+        products[prodIndex].category = category;
+        products[prodIndex].image = editBase64Image;
+        products[prodIndex].isOutOfStock = isOutOfStock;
+        products[prodIndex].variants = variants;
 
-        closeEditModal();
-        alert("Product updated successfully!");
-      } catch (err) {
-        console.error("Firestore Update Error:", err);
+        selectedVariants[prodId] = {
+          size: variants[0].size,
+          price: variants[0].price
+        };
       }
-    };
 
-    window.deleteProduct = async function(productId) {
-      if (confirm("Are you sure you want to delete this product?")) {
+      if (window.db) {
         try {
-          await deleteDoc(doc(db, "products", String(productId)));
-          alert("Product deleted successfully!");
+          const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+          const docRef = doc(window.db, "products", String(prodId));
+          await updateDoc(docRef, {
+            name: name,
+            category: category,
+            image: editBase64Image,
+            isOutOfStock: isOutOfStock,
+            variants: variants
+          });
         } catch (err) {
-          console.error("Firestore Delete Error:", err);
+          console.error("Firestore Update Error:", err);
         }
       }
-    };
 
-    window.toggleParentMenuSelect = function() {
+      renderProducts(products);
+      populateProductManagerUI();
+      closeEditModal();
+      alert("Product updated successfully!");
+    }
+
+    async function deleteProduct(productId) {
+      if (confirm("Are you sure you want to delete this product?")) {
+        products = products.filter(p => String(p.id) !== String(productId));
+
+        if (window.db) {
+          try {
+            const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+            await deleteDoc(doc(window.db, "products", String(productId)));
+          } catch (err) {
+            console.error("Firestore Delete Error:", err);
+          }
+        }
+
+        renderProducts(products);
+        populateProductManagerUI();
+        alert("Product deleted successfully!");
+      }
+    }
+
+    function toggleParentMenuSelect() {
       const menuType = document.getElementById('menuTypeSelect').value;
       const parentGroup = document.getElementById('parentMenuDropdownGroup');
       if (menuType === 'sub') {
@@ -2051,9 +2048,10 @@
       } else {
         parentGroup.style.display = 'none';
       }
-    };
+    }
 
-    window.handleNewMenuSubmit = async function(e) {
+    // Fixed Menu Submit Logic syncing with Firestore Database
+    function handleNewMenuSubmit(e) {
       e.preventDefault();
       const type = document.getElementById('menuTypeSelect').value;
       const title = document.getElementById('menuTitleInput').value.trim();
@@ -2079,15 +2077,15 @@
         }
       }
 
-      try {
-        await setDoc(doc(db, "settings", "menu_config"), { menuData: menuData });
-        document.getElementById('addMenuForm').reset();
-        toggleParentMenuSelect();
-        alert("Menu item added successfully!");
-      } catch (e) {
-        console.error("Firebase Save Menu Error: ", e);
+      // Save updated menu structure permanently to Firestore Database
+      if (window.saveMenuToDatabase) {
+        window.saveMenuToDatabase(menuData);
       }
-    };
+
+      document.getElementById('addMenuForm').reset();
+      toggleParentMenuSelect();
+      alert("New Menu / Submenu item added successfully across all devices!");
+    }
 
     function populateMenuManagerUI() {
       const tbody = document.getElementById('menuTableBody');
@@ -2123,7 +2121,8 @@
       });
     }
 
-    window.deleteMenu = async function(id, type, parentId = null) {
+    // Fixed Menu Delete Logic syncing with Firestore Database
+    function deleteMenu(id, type, parentId = null) {
       if (!confirm("Are you sure you want to delete this menu item?")) return;
 
       if (type === 'main') {
@@ -2135,21 +2134,34 @@
         }
       }
 
-      try {
-        await setDoc(doc(db, "settings", "menu_config"), { menuData: menuData });
-      } catch (e) {
-        console.error("Firebase Delete Menu Error: ", e);
+      // Save updated menu structure to Firestore Database after deletion
+      if (window.saveMenuToDatabase) {
+        window.saveMenuToDatabase(menuData);
       }
+    }
+
+    renderMenu();
+  </script>
+
+  <!-- Firebase Firestore Integration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AizaSyC6EEk-7jh_1K2cWGuTXTQqzPTrGaya0LI",
+      authDomain: "aligarh-shop-collections.firebaseapp.com",
+      projectId: "aligarh-shop-collections",
+      storageBucket: "aligarh-shop-collections.firebasestorage.app",
+      messagingSenderId: "501323077099",
+      appId: "1:501323077099:web:2bca4a2cc4235bcd5af5ae"
     };
 
-    // Firebase Auth State Listener
-    onAuthStateChanged(auth, (user) => {
-      currentUser = user;
-      renderMenu();
-    });
-
-    // Realtime Sync Listeners
-    onSnapshot(collection(db, "products"), (snapshot) => {
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+    
+    // Live Realtime Products Firestore Sync
+    onSnapshot(collection(window.db, "products"), (snapshot) => {
       let list = [];
       snapshot.forEach((d) => {
         list.push({ ...d.data(), id: d.id });
@@ -2159,15 +2171,33 @@
       populateProductManagerUI();
     });
 
-    onSnapshot(doc(db, "settings", "menu_config"), (docSnap) => {
+    // Live Realtime Navigation Menu Firestore Sync
+    onSnapshot(doc(window.db, "settings", "menu_config"), (docSnap) => {
       if (docSnap.exists() && docSnap.data().menuData) {
         menuData = docSnap.data().menuData;
       } else {
-        setDoc(doc(db, "settings", "menu_config"), { menuData: defaultMenuData });
+        // If document doesn't exist yet, save default structure
+        setDoc(doc(window.db, "settings", "menu_config"), { menuData: defaultMenuData });
         menuData = defaultMenuData;
       }
       renderMenu();
     });
+
+    window.saveProductToDatabase = async function(productData) {
+      try {
+        await addDoc(collection(window.db, "products"), productData);
+      } catch (e) {
+        console.error("Firebase Add Product Error: ", e);
+      }
+    };
+
+    window.saveMenuToDatabase = async function(updatedMenuData) {
+      try {
+        await setDoc(doc(window.db, "settings", "menu_config"), { menuData: updatedMenuData });
+      } catch (e) {
+        console.error("Firebase Save Menu Error: ", e);
+      }
+    };
   </script>
 </body>
 </html>
