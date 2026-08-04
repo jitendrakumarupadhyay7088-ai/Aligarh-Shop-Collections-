@@ -1041,8 +1041,8 @@
       <div class="admin-body">
         <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
           <div class="form-group">
-            <label><i class="fa-solid fa-user"></i> Admin ID</label>
-            <input type="text" id="adminLoginId" placeholder="Enter Admin ID" required>
+            <label><i class="fa-solid fa-envelope"></i> Admin Email</label>
+            <input type="email" id="adminLoginId" placeholder="admin@example.com" required>
           </div>
 
           <div class="form-group">
@@ -1051,7 +1051,7 @@
           </div>
 
           <div id="loginErrorMsg" style="color: #ef4444; font-size: 13px; font-weight: 600; margin-bottom: 12px; display: none; text-align: center;">
-            Incorrect Admin ID or Password!
+            Incorrect Email or Password!
           </div>
 
           <button type="submit" class="submit-product-btn" style="background-color: #0f172a;">Login</button>
@@ -1065,7 +1065,10 @@
     <div class="admin-modal">
       <div class="admin-header">
         <h3><i class="fa-solid fa-sliders"></i> Admin Dashboard</h3>
-        <button class="close-cart-btn" onclick="closeAdminPanel()"><i class="fa-solid fa-xmark"></i></button>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button onclick="handleAdminLogout()" style="background:#ef4444; color:white; border:none; padding: 6px 12px; border-radius: 6px; cursor:pointer; font-weight:600; font-size:12px;">Logout</button>
+          <button class="close-cart-btn" onclick="closeAdminPanel()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
       </div>
 
       <div class="admin-tabs">
@@ -1244,10 +1247,6 @@
 
   <script>
     const YOUR_WHATSAPP_NUMBER = "917088484025"; 
-    
-    // Admin Credentials
-    const ADMIN_ID = "Jitendra"; 
-    const ADMIN_PASSWORD = "Jitendra@123"; 
 
     const AVAILABLE_COUPONS = {
       "FLAT10": { type: "flat", value: 10 },
@@ -1255,6 +1254,7 @@
       "FLAT100": { type: "flat", value: 100 }
     };
 
+    let currentUser = null; // Stores Firebase Logged-in User
     let appliedCoupon = null;
     let selectedBase64Image = "";
     let editBase64Image = ""; 
@@ -1346,7 +1346,7 @@
 
       navHTML += `
         <li class="menu-item" style="margin-left: auto;">
-          <a href="#" class="admin-btn-nav" onclick="openAdminLoginModal()"><i class="fa-solid fa-user-lock"></i> Admin Panel</a>
+          <a href="#" class="admin-btn-nav" onclick="openAdminPanelOrLogin()"><i class="fa-solid fa-user-lock"></i> ${currentUser ? 'Admin Dashboard' : 'Admin Panel'}</a>
         </li>
       `;
 
@@ -1744,6 +1744,14 @@
     }
 
     /* ADMIN DASHBOARD LOGIC */
+    function openAdminPanelOrLogin() {
+      if (currentUser) {
+        document.getElementById('adminModalOverlay').classList.add('open');
+      } else {
+        openAdminLoginModal();
+      }
+    }
+
     function openAdminLoginModal() {
       document.getElementById('adminLoginForm').reset();
       document.getElementById('loginErrorMsg').style.display = 'none';
@@ -1756,14 +1764,17 @@
 
     function handleAdminLogin(e) {
       e.preventDefault();
-      const idInput = document.getElementById('adminLoginId').value.trim();
+      const email = document.getElementById('adminLoginId').value.trim();
       const passInput = document.getElementById('adminLoginPass').value.trim();
 
-      if (idInput === ADMIN_ID && passInput === ADMIN_PASSWORD) {
-        closeAdminLoginModal();
-        document.getElementById('adminModalOverlay').classList.add('open');
-      } else {
-        document.getElementById('loginErrorMsg').style.display = 'block';
+      if (window.loginAdminFirebase) {
+        window.loginAdminFirebase(email, passInput);
+      }
+    }
+
+    function handleAdminLogout() {
+      if (window.logoutAdminFirebase) {
+        window.logoutAdminFirebase();
       }
     }
 
@@ -2143,10 +2154,11 @@
     renderMenu();
   </script>
 
-  <!-- Firebase Firestore Integration -->
+  <!-- Firebase Firestore & Authentication Integration -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AizaSyC6EEk-7jh_1K2cWGuTXTQqzPTrGaya0LI",
@@ -2159,7 +2171,38 @@
 
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    
+    window.auth = getAuth(app);
+
+    // Auth State Observer
+    onAuthStateChanged(window.auth, (user) => {
+      currentUser = user;
+      renderMenu(); // Re-render menu to show Admin Panel or Dashboard title correctly
+    });
+
+    // Login Function
+    window.loginAdminFirebase = async (email, password) => {
+      try {
+        await signInWithEmailAndPassword(window.auth, email, password);
+        closeAdminLoginModal();
+        document.getElementById('adminModalOverlay').classList.add('open');
+      } catch (error) {
+        console.error("Login Error:", error);
+        document.getElementById('loginErrorMsg').innerText = "Invalid Admin Credentials!";
+        document.getElementById('loginErrorMsg').style.display = 'block';
+      }
+    };
+
+    // Logout Function
+    window.logoutAdminFirebase = async () => {
+      try {
+        await signOut(window.auth);
+        closeAdminPanel();
+        alert("Logged out successfully!");
+      } catch (error) {
+        console.error("Logout Error:", error);
+      }
+    };
+
     // Live Realtime Products Firestore Sync
     onSnapshot(collection(window.db, "products"), (snapshot) => {
       let list = [];
