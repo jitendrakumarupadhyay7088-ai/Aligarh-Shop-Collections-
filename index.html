@@ -746,7 +746,6 @@
       height: 38px;
       border-radius: 6px;
       cursor: pointer;
-
     }
 
     .add-variant-btn {
@@ -1282,7 +1281,8 @@
       }
     }
 
-    let menuData = [
+    // Default initial menu structure
+    const defaultMenuData = [
       {
         id: "m1",
         title: "Man's Collection",
@@ -1311,6 +1311,10 @@
         ]
       }
     ];
+
+    // Load menu permanently from LocalStorage OR fall back to default
+    let savedMenu = localStorage.getItem('my_shop_menu');
+    let menuData = savedMenu ? JSON.parse(savedMenu) : defaultMenuData;
 
     let products = [];
     let selectedVariants = {};
@@ -1904,7 +1908,6 @@
       });
     }
 
-    // 1. FIXED OUT OF STOCK TOGGLE
     async function toggleStockStatus(productId, isChecked) {
       const product = products.find(p => String(p.id) === String(productId));
       if (product) {
@@ -1926,7 +1929,6 @@
       }
     }
 
-    // 2. FIXED EDIT MODAL OPENER
     function openEditModal(productId) {
       const product = products.find(p => String(p.id) === String(productId));
       if (!product) {
@@ -1960,7 +1962,6 @@
       document.getElementById('editProductModalOverlay').classList.remove('open');
     }
 
-    // 3. FIXED PRODUCT UPDATE SUBMIT
     async function handleProductUpdate(e) {
       e.preventDefault();
 
@@ -2055,6 +2056,7 @@
       }
     }
 
+    // Fixed Menu Submit Logic with LocalStorage saving
     function handleNewMenuSubmit(e) {
       e.preventDefault();
       const type = document.getElementById('menuTypeSelect').value;
@@ -2080,10 +2082,13 @@
         }
       }
 
+      // Save updated menu permanently to localStorage
+      localStorage.setItem('my_shop_menu', JSON.stringify(menuData));
+
       renderMenu();
       document.getElementById('addMenuForm').reset();
       toggleParentMenuSelect();
-      alert("New Menu / Submenu item added successfully!");
+      alert("New Menu / Submenu item added permanently!");
     }
 
     function populateMenuManagerUI() {
@@ -2118,6 +2123,7 @@
       });
     }
 
+    // Fixed Menu Delete Logic with LocalStorage saving
     function deleteMenu(id, type, parentId = null) {
       if (!confirm("Are you sure you want to delete this menu item?")) return;
 
@@ -2129,6 +2135,9 @@
           parent.submenus = parent.submenus.filter(s => s.id !== id);
         }
       }
+
+      // Update localStorage after deletion
+      localStorage.setItem('my_shop_menu', JSON.stringify(menuData));
 
       renderMenu();
     }
