@@ -1281,7 +1281,7 @@
       }
     }
 
-    // Default initial menu structure
+    // Default initial menu structure fallback
     const defaultMenuData = [
       {
         id: "m1",
@@ -1312,10 +1312,7 @@
       }
     ];
 
-    // Load menu permanently from LocalStorage OR fall back to default
-    let savedMenu = localStorage.getItem('my_shop_menu');
-    let menuData = savedMenu ? JSON.parse(savedMenu) : defaultMenuData;
-
+    let menuData = defaultMenuData;
     let products = [];
     let selectedVariants = {};
     let cart = [];
@@ -1384,7 +1381,7 @@
 
       if (mainMenu) {
         displayTitle = mainMenu.title;
-        const allowedCategories = mainMenu.submenus.map(sub => sub.category);
+        const allowedCategories = (mainMenu.submenus || []).map(sub => sub.category);
         allowedCategories.push(mainMenu.category);
 
         filtered = products.filter(p => allowedCategories.includes(p.category));
@@ -1408,7 +1405,7 @@
       menuData.forEach(mainMenu => {
         parentOptionsHTML += `<option value="${mainMenu.id}">${mainMenu.title}</option>`;
 
-        if (mainMenu.submenus.length > 0) {
+        if (mainMenu.submenus && mainMenu.submenus.length > 0) {
           mainMenu.submenus.forEach(sub => {
             optionsHTML += `<option value="${sub.category}">${mainMenu.title} → ${sub.title}</option>`;
           });
@@ -1462,7 +1459,7 @@
             ${isOutOfStock ? '<div class="out-of-stock-badge">Out of Stock</div>' : ''}
             <img src="${product.image}" alt="${product.name}" class="product-image">
             <div class="product-info">
-              <span class="product-category">${product.category.replace('-', ' ')}</span>
+              <span class="product-category">${(product.category || '').replace('-', ' ')}</span>
               <div class="product-title">${product.name}</div>
               
               <div class="size-label">Select Size:</div>
@@ -1740,7 +1737,7 @@
       const query = document.getElementById('searchInput').value.toLowerCase();
       const filtered = products.filter(p => 
         p.name.toLowerCase().includes(query) || 
-        p.category.toLowerCase().includes(query)
+        (p.category && p.category.toLowerCase().includes(query))
       );
       document.getElementById('categoryTitle').innerText = `Search Results for "${query}"`;
       renderProducts(filtered);
@@ -1914,7 +1911,6 @@
         product.isOutOfStock = isChecked;
       }
 
-      localStorage.setItem('my_shop_products', JSON.stringify(products));
       renderProducts(products);
       populateProductManagerUI();
 
@@ -2019,7 +2015,6 @@
         }
       }
 
-      localStorage.setItem('my_shop_products', JSON.stringify(products));
       renderProducts(products);
       populateProductManagerUI();
       closeEditModal();
@@ -2039,7 +2034,6 @@
           }
         }
 
-        localStorage.setItem('my_shop_products', JSON.stringify(products));
         renderProducts(products);
         populateProductManagerUI();
         alert("Product deleted successfully!");
@@ -2056,7 +2050,7 @@
       }
     }
 
-    // Fixed Menu Submit Logic with LocalStorage saving
+    // Fixed Menu Submit Logic syncing with Firestore Database
     function handleNewMenuSubmit(e) {
       e.preventDefault();
       const type = document.getElementById('menuTypeSelect').value;
@@ -2074,6 +2068,7 @@
         const parentId = document.getElementById('parentMenuSelect').value;
         const parentMenu = menuData.find(m => m.id === parentId);
         if (parentMenu) {
+          if(!parentMenu.submenus) parentMenu.submenus = [];
           parentMenu.submenus.push({
             id: 's_' + Date.now(),
             title: title,
@@ -2082,13 +2077,14 @@
         }
       }
 
-      // Save updated menu permanently to localStorage
-      localStorage.setItem('my_shop_menu', JSON.stringify(menuData));
+      // Save updated menu structure permanently to Firestore Database
+      if (window.saveMenuToDatabase) {
+        window.saveMenuToDatabase(menuData);
+      }
 
-      renderMenu();
       document.getElementById('addMenuForm').reset();
       toggleParentMenuSelect();
-      alert("New Menu / Submenu item added permanently!");
+      alert("New Menu / Submenu item added successfully across all devices!");
     }
 
     function populateMenuManagerUI() {
@@ -2108,22 +2104,24 @@
           </tr>
         `;
 
-        mainMenu.submenus.forEach(sub => {
-          tbody.innerHTML += `
-            <tr>
-              <td style="padding-left: 20px;">└ Submenu</td>
-              <td>${sub.title}</td>
-              <td><code>${sub.category}</code></td>
-              <td>
-                <button class="delete-menu-btn" onclick="deleteMenu('${sub.id}', 'sub', '${mainMenu.id}')">Delete</button>
-              </td>
-            </tr>
-          `;
-        });
+        if(mainMenu.submenus) {
+          mainMenu.submenus.forEach(sub => {
+            tbody.innerHTML += `
+              <tr>
+                <td style="padding-left: 20px;">└ Submenu</td>
+                <td>${sub.title}</td>
+                <td><code>${sub.category}</code></td>
+                <td>
+                  <button class="delete-menu-btn" onclick="deleteMenu('${sub.id}', 'sub', '${mainMenu.id}')">Delete</button>
+                </td>
+              </tr>
+            `;
+          });
+        }
       });
     }
 
-    // Fixed Menu Delete Logic with LocalStorage saving
+    // Fixed Menu Delete Logic syncing with Firestore Database
     function deleteMenu(id, type, parentId = null) {
       if (!confirm("Are you sure you want to delete this menu item?")) return;
 
@@ -2131,15 +2129,15 @@
         menuData = menuData.filter(m => m.id !== id);
       } else if (type === 'sub' && parentId) {
         const parent = menuData.find(m => m.id === parentId);
-        if (parent) {
+        if (parent && parent.submenus) {
           parent.submenus = parent.submenus.filter(s => s.id !== id);
         }
       }
 
-      // Update localStorage after deletion
-      localStorage.setItem('my_shop_menu', JSON.stringify(menuData));
-
-      renderMenu();
+      // Save updated menu structure to Firestore Database after deletion
+      if (window.saveMenuToDatabase) {
+        window.saveMenuToDatabase(menuData);
+      }
     }
 
     renderMenu();
@@ -2148,7 +2146,7 @@
   <!-- Firebase Firestore Integration -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AizaSyC6EEk-7jh_1K2cWGuTXTQqzPTrGaya0LI",
@@ -2162,7 +2160,7 @@
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
     
-    // Live Realtime Firestore Sync
+    // Live Realtime Products Firestore Sync
     onSnapshot(collection(window.db, "products"), (snapshot) => {
       let list = [];
       snapshot.forEach((d) => {
@@ -2173,11 +2171,31 @@
       populateProductManagerUI();
     });
 
+    // Live Realtime Navigation Menu Firestore Sync
+    onSnapshot(doc(window.db, "settings", "menu_config"), (docSnap) => {
+      if (docSnap.exists() && docSnap.data().menuData) {
+        menuData = docSnap.data().menuData;
+      } else {
+        // If document doesn't exist yet, save default structure
+        setDoc(doc(window.db, "settings", "menu_config"), { menuData: defaultMenuData });
+        menuData = defaultMenuData;
+      }
+      renderMenu();
+    });
+
     window.saveProductToDatabase = async function(productData) {
       try {
         await addDoc(collection(window.db, "products"), productData);
       } catch (e) {
-        console.error("Firebase Add Error: ", e);
+        console.error("Firebase Add Product Error: ", e);
+      }
+    };
+
+    window.saveMenuToDatabase = async function(updatedMenuData) {
+      try {
+        await setDoc(doc(window.db, "settings", "menu_config"), { menuData: updatedMenuData });
+      } catch (e) {
+        console.error("Firebase Save Menu Error: ", e);
       }
     };
   </script>
