@@ -21,7 +21,6 @@
       color: #0f172a;
     }
 
-    /* Premium Dark Slate Header */
     header {
       background-color: #0f172a;
       color: #ffffff;
@@ -43,7 +42,6 @@
       gap: 15px;
     }
 
-    /* Mobile Menu Toggle Button */
     .mobile-menu-btn {
       display: none;
       background: none;
@@ -68,7 +66,6 @@
       color: #38bdf8;
     }
 
-    /* Cart Icon Styling */
     .cart-icon {
       position: relative;
       font-size: 14px;
@@ -97,7 +94,6 @@
       font-weight: 700;
     }
 
-    /* Search Bar Styling */
     .search-container {
       display: flex;
       flex: 1;
@@ -150,7 +146,6 @@
       }
     }
 
-    /* Clean Navigation Bar */
     nav {
       background-color: #ffffff;
       border-bottom: 1px solid #e2e8f0;
@@ -198,7 +193,6 @@
       color: #ffffff !important;
     }
 
-    /* Submenu (Dropdown) */
     .submenu {
       display: none;
       position: absolute;
@@ -236,7 +230,6 @@
       }
     }
 
-    /* Main Products Section */
     .main-content {
       padding: 40px 6%;
       min-height: 80vh;
@@ -421,7 +414,6 @@
       background-color: #0369a1;
     }
 
-    /* Cart Overlay & Modal */
     .cart-overlay {
       position: fixed;
       top: 0;
@@ -611,7 +603,6 @@
       margin-top: 60px;
     }
 
-    /* Modal Styling */
     .admin-modal-overlay {
       position: fixed;
       top: 0;
@@ -820,7 +811,6 @@
       margin-top: 40px;
     }
 
-    /* MOBILE RESPONSIVE STYLES */
     @media (max-width: 768px) {
       .mobile-menu-btn {
         display: block;
@@ -1245,7 +1235,28 @@
     &copy; 2026 Aligarh Shop Collection. All rights reserved.
   </footer>
 
-  <script>
+  <!-- Firebase & App Script (Merged in Module Scope for synchronous execution) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AizaSyC6EEk-7jh_1K2cWGuTXTQqzPTrGaya0LI",
+      authDomain: "aligarh-shop-collections.firebaseapp.com",
+      projectId: "aligarh-shop-collections",
+      storageBucket: "aligarh-shop-collections.firebasestorage.app",
+      messagingSenderId: "501323077099",
+      appId: "1:501323077099:web:2bca4a2cc4235bcd5af5ae"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    window.db = db;
+    window.auth = auth;
+
     const YOUR_WHATSAPP_NUMBER = "917088484025"; 
 
     const AVAILABLE_COUPONS = {
@@ -1254,34 +1265,11 @@
       "FLAT100": { type: "flat", value: 100 }
     };
 
-    let currentUser = null; // Stores Firebase Logged-in User
+    let currentUser = null;
     let appliedCoupon = null;
     let selectedBase64Image = "";
     let editBase64Image = ""; 
 
-    function toggleMobileMenu() {
-      const nav = document.getElementById('navbar');
-      const icon = document.getElementById('menuIcon');
-      nav.classList.toggle('active');
-
-      if (nav.classList.contains('active')) {
-        icon.className = "fa-solid fa-xmark";
-      } else {
-        icon.className = "fa-solid fa-bars";
-      }
-    }
-
-    function toggleSubmenu(event, subMenuId) {
-      if (window.innerWidth <= 768) {
-        event.preventDefault();
-        const submenu = document.getElementById(subMenuId);
-        if (submenu) {
-          submenu.classList.toggle('open');
-        }
-      }
-    }
-
-    // Default initial menu structure fallback
     const defaultMenuData = [
       {
         id: "m1",
@@ -1316,6 +1304,29 @@
     let products = [];
     let selectedVariants = {};
     let cart = [];
+
+    // Make utility functions global for inline HTML handlers
+    window.toggleMobileMenu = function() {
+      const nav = document.getElementById('navbar');
+      const icon = document.getElementById('menuIcon');
+      nav.classList.toggle('active');
+
+      if (nav.classList.contains('active')) {
+        icon.className = "fa-solid fa-xmark";
+      } else {
+        icon.className = "fa-solid fa-bars";
+      }
+    };
+
+    window.toggleSubmenu = function(event, subMenuId) {
+      if (window.innerWidth <= 768) {
+        event.preventDefault();
+        const submenu = document.getElementById(subMenuId);
+        if (submenu) {
+          submenu.classList.toggle('open');
+        }
+      }
+    };
 
     function renderMenu() {
       const navContainer = document.getElementById('mainMenuBar');
@@ -1356,7 +1367,7 @@
       populateProductManagerUI();
     }
 
-    function handleCategoryClick(categorySlug, event = null, subMenuId = null) {
+    window.handleCategoryClick = function(categorySlug, event = null, subMenuId = null) {
       if (event && window.innerWidth <= 768 && subMenuId) {
         toggleSubmenu(event, subMenuId);
       }
@@ -1371,7 +1382,7 @@
         document.getElementById('navbar').classList.remove('active');
         document.getElementById('menuIcon').className = "fa-solid fa-bars";
       }
-    }
+    };
 
     function filterProducts(categorySlug) {
       let filtered = [];
@@ -1481,7 +1492,7 @@
       });
     }
 
-    function selectSize(productId, selectedSize, price, btnElement) {
+    window.selectSize = function(productId, selectedSize, price, btnElement) {
       const card = document.getElementById(`product-${productId}`);
       if (card) {
         const allBtns = card.querySelectorAll('.size-btn');
@@ -1497,14 +1508,14 @@
 
       const priceElem = document.getElementById(`price-${productId}`);
       if (priceElem) priceElem.innerText = `₹${price.toLocaleString()}`;
-    }
+    };
 
-    function toggleCart() {
+    window.toggleCart = function() {
       const overlay = document.getElementById('cartOverlay');
       overlay.classList.toggle('open');
-    }
+    };
 
-    function addToCart(productId) {
+    window.addToCart = function(productId) {
       const product = products.find(p => String(p.id) === String(productId));
       if (!product || product.isOutOfStock) return;
 
@@ -1527,9 +1538,9 @@
 
       updateCartUI();
       toggleCart();
-    }
+    };
 
-    function applyCoupon() {
+    window.applyCoupon = function() {
       const input = document.getElementById('couponInput');
       const msg = document.getElementById('couponMsg');
       const btn = document.getElementById('couponBtn');
@@ -1568,7 +1579,7 @@
         msg.className = "coupon-msg error";
         msg.innerText = "Invalid Coupon Code!";
       }
-    }
+    };
 
     function updateCartUI() {
       const cartBody = document.getElementById('cartBody');
@@ -1645,32 +1656,32 @@
       cartTotal.innerText = `₹${grandTotal.toLocaleString()}`;
     }
 
-    function changeQty(index, change) {
+    window.changeQty = function(index, change) {
       cart[index].qty += change;
       if (cart[index].qty <= 0) {
         cart.splice(index, 1);
       }
       updateCartUI();
-    }
+    };
 
-    function removeFromCart(index) {
+    window.removeFromCart = function(index) {
       cart.splice(index, 1);
       updateCartUI();
-    }
+    };
 
-    function openCustomerDetailsModal() {
+    window.openCustomerDetailsModal = function() {
       if (cart.length === 0) {
         alert("Your cart is empty!");
         return;
       }
       document.getElementById('customerModalOverlay').classList.add('open');
-    }
+    };
 
-    function closeCustomerDetailsModal() {
+    window.closeCustomerDetailsModal = function() {
       document.getElementById('customerModalOverlay').classList.remove('open');
-    }
+    };
 
-    function sendWhatsAppOrder(event) {
+    window.sendWhatsAppOrder = function(event) {
       event.preventDefault();
 
       const name = document.getElementById('custName').value.trim();
@@ -1725,15 +1736,15 @@
 
       closeCustomerDetailsModal();
       toggleCart();
-    }
+    };
 
-    function resetFilter() {
+    window.resetFilter = function() {
       document.getElementById('categoryTitle').innerText = "All Collections";
       document.getElementById('searchInput').value = "";
       renderProducts(products);
-    }
+    };
 
-    function searchProducts() {
+    window.searchProducts = function() {
       const query = document.getElementById('searchInput').value.toLowerCase();
       const filtered = products.filter(p => 
         p.name.toLowerCase().includes(query) || 
@@ -1741,56 +1752,67 @@
       );
       document.getElementById('categoryTitle').innerText = `Search Results for "${query}"`;
       renderProducts(filtered);
-    }
+    };
 
-    /* ADMIN DASHBOARD LOGIC */
-    function openAdminPanelOrLogin() {
+    /* ADMIN AUTHENTICATION LOGIC FIXED */
+    window.openAdminPanelOrLogin = function() {
       if (currentUser) {
         document.getElementById('adminModalOverlay').classList.add('open');
       } else {
         openAdminLoginModal();
       }
-    }
+    };
 
-    function openAdminLoginModal() {
+    window.openAdminLoginModal = function() {
       document.getElementById('adminLoginForm').reset();
       document.getElementById('loginErrorMsg').style.display = 'none';
       document.getElementById('adminLoginModalOverlay').classList.add('open');
-    }
+    };
 
-    function closeAdminLoginModal() {
+    window.closeAdminLoginModal = function() {
       document.getElementById('adminLoginModalOverlay').classList.remove('open');
-    }
+    };
 
-    function handleAdminLogin(e) {
+    window.handleAdminLogin = async function(e) {
       e.preventDefault();
       const email = document.getElementById('adminLoginId').value.trim();
       const passInput = document.getElementById('adminLoginPass').value.trim();
 
-      if (window.loginAdminFirebase) {
-        window.loginAdminFirebase(email, passInput);
+      try {
+        await signInWithEmailAndPassword(auth, email, passInput);
+        closeAdminLoginModal();
+        document.getElementById('adminModalOverlay').classList.add('open');
+      } catch (error) {
+        console.error("Login Error:", error);
+        const errBox = document.getElementById('loginErrorMsg');
+        errBox.innerText = "Incorrect Email or Password!";
+        errBox.style.display = 'block';
       }
-    }
+    };
 
-    function handleAdminLogout() {
-      if (window.logoutAdminFirebase) {
-        window.logoutAdminFirebase();
+    window.handleAdminLogout = async function() {
+      try {
+        await signOut(auth);
+        closeAdminPanel();
+        alert("Logged out successfully!");
+      } catch (error) {
+        console.error("Logout Error:", error);
       }
-    }
+    };
 
-    function switchAdminTab(tabId, btnElement) {
+    window.switchAdminTab = function(tabId, btnElement) {
       document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
 
       btnElement.classList.add('active');
       document.getElementById(tabId).classList.add('active');
-    }
+    };
 
-    function closeAdminPanel() {
+    window.closeAdminPanel = function() {
       document.getElementById('adminModalOverlay').classList.remove('open');
-    }
+    };
 
-    function addVariantRow(containerId, sizeVal = "", priceVal = "") {
+    window.addVariantRow = function(containerId, sizeVal = "", priceVal = "") {
       const container = document.getElementById(containerId);
       const row = document.createElement('div');
       row.className = 'variant-row';
@@ -1800,9 +1822,9 @@
         <button type="button" class="remove-variant-btn" onclick="this.parentElement.remove()"><i class="fa-solid fa-trash-can"></i></button>
       `;
       container.appendChild(row);
-    }
+    };
 
-    function previewImage(event) {
+    window.previewImage = function(event) {
       const file = event.target.files[0];
       const previewBox = document.getElementById('imagePreviewBox');
 
@@ -1817,9 +1839,9 @@
         selectedBase64Image = "";
         previewBox.innerHTML = `<span>Photo Preview will appear here</span>`;
       }
-    }
+    };
 
-    function previewEditImage(event) {
+    window.previewEditImage = function(event) {
       const file = event.target.files[0];
       const previewBox = document.getElementById('editImagePreviewBox');
 
@@ -1831,9 +1853,9 @@
         };
         reader.readAsDataURL(file);
       }
-    }
+    };
 
-    function handleNewProductSubmit(e) {
+    window.handleNewProductSubmit = async function(e) {
       e.preventDefault();
       
       const name = document.getElementById('newProdName').value;
@@ -1872,17 +1894,17 @@
         variants: variants
       };
 
-      if (window.saveProductToDatabase) {
-        window.saveProductToDatabase(newProduct);
+      try {
+        await addDoc(collection(db, "products"), newProduct);
+        closeAdminPanel();
+        alert("Product added successfully!");
+        document.getElementById('addProductForm').reset();
+        selectedBase64Image = "";
+        document.getElementById('imagePreviewBox').innerHTML = `<span>Photo Preview will appear here</span>`;
+      } catch (err) {
+        console.error("Firebase Add Error:", err);
       }
-
-      closeAdminPanel();
-      alert("Product added successfully!");
-
-      document.getElementById('addProductForm').reset();
-      selectedBase64Image = "";
-      document.getElementById('imagePreviewBox').innerHTML = `<span>Photo Preview will appear here</span>`;
-    }
+    };
 
     function populateProductManagerUI() {
       const tbody = document.getElementById('productsTableBody');
@@ -1916,7 +1938,7 @@
       });
     }
 
-    async function toggleStockStatus(productId, isChecked) {
+    window.toggleStockStatus = async function(productId, isChecked) {
       const product = products.find(p => String(p.id) === String(productId));
       if (product) {
         product.isOutOfStock = isChecked;
@@ -1925,18 +1947,15 @@
       renderProducts(products);
       populateProductManagerUI();
 
-      if (window.db) {
-        try {
-          const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-          const docRef = doc(window.db, "products", String(productId));
-          await updateDoc(docRef, { isOutOfStock: isChecked });
-        } catch (err) {
-          console.error("Firestore Stock Update Error:", err);
-        }
+      try {
+        const docRef = doc(db, "products", String(productId));
+        await updateDoc(docRef, { isOutOfStock: isChecked });
+      } catch (err) {
+        console.error("Firestore Stock Update Error:", err);
       }
-    }
+    };
 
-    function openEditModal(productId) {
+    window.openEditModal = function(productId) {
       const product = products.find(p => String(p.id) === String(productId));
       if (!product) {
         alert("Product not found!");
@@ -1963,13 +1982,13 @@
       }
 
       document.getElementById('editProductModalOverlay').classList.add('open');
-    }
+    };
 
-    function closeEditModal() {
+    window.closeEditModal = function() {
       document.getElementById('editProductModalOverlay').classList.remove('open');
-    }
+    };
 
-    async function handleProductUpdate(e) {
+    window.handleProductUpdate = async function(e) {
       e.preventDefault();
 
       const prodId = document.getElementById('editProdId').value;
@@ -1996,62 +2015,35 @@
         return;
       }
 
-      const prodIndex = products.findIndex(p => String(p.id) === String(prodId));
-      if (prodIndex !== -1) {
-        products[prodIndex].name = name;
-        products[prodIndex].category = category;
-        products[prodIndex].image = editBase64Image;
-        products[prodIndex].isOutOfStock = isOutOfStock;
-        products[prodIndex].variants = variants;
+      try {
+        const docRef = doc(db, "products", String(prodId));
+        await updateDoc(docRef, {
+          name: name,
+          category: category,
+          image: editBase64Image,
+          isOutOfStock: isOutOfStock,
+          variants: variants
+        });
 
-        selectedVariants[prodId] = {
-          size: variants[0].size,
-          price: variants[0].price
-        };
+        closeEditModal();
+        alert("Product updated successfully!");
+      } catch (err) {
+        console.error("Firestore Update Error:", err);
       }
+    };
 
-      if (window.db) {
-        try {
-          const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-          const docRef = doc(window.db, "products", String(prodId));
-          await updateDoc(docRef, {
-            name: name,
-            category: category,
-            image: editBase64Image,
-            isOutOfStock: isOutOfStock,
-            variants: variants
-          });
-        } catch (err) {
-          console.error("Firestore Update Error:", err);
-        }
-      }
-
-      renderProducts(products);
-      populateProductManagerUI();
-      closeEditModal();
-      alert("Product updated successfully!");
-    }
-
-    async function deleteProduct(productId) {
+    window.deleteProduct = async function(productId) {
       if (confirm("Are you sure you want to delete this product?")) {
-        products = products.filter(p => String(p.id) !== String(productId));
-
-        if (window.db) {
-          try {
-            const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-            await deleteDoc(doc(window.db, "products", String(productId)));
-          } catch (err) {
-            console.error("Firestore Delete Error:", err);
-          }
+        try {
+          await deleteDoc(doc(db, "products", String(productId)));
+          alert("Product deleted successfully!");
+        } catch (err) {
+          console.error("Firestore Delete Error:", err);
         }
-
-        renderProducts(products);
-        populateProductManagerUI();
-        alert("Product deleted successfully!");
       }
-    }
+    };
 
-    function toggleParentMenuSelect() {
+    window.toggleParentMenuSelect = function() {
       const menuType = document.getElementById('menuTypeSelect').value;
       const parentGroup = document.getElementById('parentMenuDropdownGroup');
       if (menuType === 'sub') {
@@ -2059,10 +2051,9 @@
       } else {
         parentGroup.style.display = 'none';
       }
-    }
+    };
 
-    // Fixed Menu Submit Logic syncing with Firestore Database
-    function handleNewMenuSubmit(e) {
+    window.handleNewMenuSubmit = async function(e) {
       e.preventDefault();
       const type = document.getElementById('menuTypeSelect').value;
       const title = document.getElementById('menuTitleInput').value.trim();
@@ -2088,15 +2079,15 @@
         }
       }
 
-      // Save updated menu structure permanently to Firestore Database
-      if (window.saveMenuToDatabase) {
-        window.saveMenuToDatabase(menuData);
+      try {
+        await setDoc(doc(db, "settings", "menu_config"), { menuData: menuData });
+        document.getElementById('addMenuForm').reset();
+        toggleParentMenuSelect();
+        alert("Menu item added successfully!");
+      } catch (e) {
+        console.error("Firebase Save Menu Error: ", e);
       }
-
-      document.getElementById('addMenuForm').reset();
-      toggleParentMenuSelect();
-      alert("New Menu / Submenu item added successfully across all devices!");
-    }
+    };
 
     function populateMenuManagerUI() {
       const tbody = document.getElementById('menuTableBody');
@@ -2132,8 +2123,7 @@
       });
     }
 
-    // Fixed Menu Delete Logic syncing with Firestore Database
-    function deleteMenu(id, type, parentId = null) {
+    window.deleteMenu = async function(id, type, parentId = null) {
       if (!confirm("Are you sure you want to delete this menu item?")) return;
 
       if (type === 'main') {
@@ -2145,66 +2135,21 @@
         }
       }
 
-      // Save updated menu structure to Firestore Database after deletion
-      if (window.saveMenuToDatabase) {
-        window.saveMenuToDatabase(menuData);
+      try {
+        await setDoc(doc(db, "settings", "menu_config"), { menuData: menuData });
+      } catch (e) {
+        console.error("Firebase Delete Menu Error: ", e);
       }
-    }
-
-    renderMenu();
-  </script>
-
-  <!-- Firebase Firestore & Authentication Integration -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AizaSyC6EEk-7jh_1K2cWGuTXTQqzPTrGaya0LI",
-      authDomain: "aligarh-shop-collections.firebaseapp.com",
-      projectId: "aligarh-shop-collections",
-      storageBucket: "aligarh-shop-collections.firebasestorage.app",
-      messagingSenderId: "501323077099",
-      appId: "1:501323077099:web:2bca4a2cc4235bcd5af5ae"
     };
 
-    const app = initializeApp(firebaseConfig);
-    window.db = getFirestore(app);
-    window.auth = getAuth(app);
-
-    // Auth State Observer
-    onAuthStateChanged(window.auth, (user) => {
+    // Firebase Auth State Listener
+    onAuthStateChanged(auth, (user) => {
       currentUser = user;
-      renderMenu(); // Re-render menu to show Admin Panel or Dashboard title correctly
+      renderMenu();
     });
 
-    // Login Function
-    window.loginAdminFirebase = async (email, password) => {
-      try {
-        await signInWithEmailAndPassword(window.auth, email, password);
-        closeAdminLoginModal();
-        document.getElementById('adminModalOverlay').classList.add('open');
-      } catch (error) {
-        console.error("Login Error:", error);
-        document.getElementById('loginErrorMsg').innerText = "Invalid Admin Credentials!";
-        document.getElementById('loginErrorMsg').style.display = 'block';
-      }
-    };
-
-    // Logout Function
-    window.logoutAdminFirebase = async () => {
-      try {
-        await signOut(window.auth);
-        closeAdminPanel();
-        alert("Logged out successfully!");
-      } catch (error) {
-        console.error("Logout Error:", error);
-      }
-    };
-
-    // Live Realtime Products Firestore Sync
-    onSnapshot(collection(window.db, "products"), (snapshot) => {
+    // Realtime Sync Listeners
+    onSnapshot(collection(db, "products"), (snapshot) => {
       let list = [];
       snapshot.forEach((d) => {
         list.push({ ...d.data(), id: d.id });
@@ -2214,33 +2159,15 @@
       populateProductManagerUI();
     });
 
-    // Live Realtime Navigation Menu Firestore Sync
-    onSnapshot(doc(window.db, "settings", "menu_config"), (docSnap) => {
+    onSnapshot(doc(db, "settings", "menu_config"), (docSnap) => {
       if (docSnap.exists() && docSnap.data().menuData) {
         menuData = docSnap.data().menuData;
       } else {
-        // If document doesn't exist yet, save default structure
-        setDoc(doc(window.db, "settings", "menu_config"), { menuData: defaultMenuData });
+        setDoc(doc(db, "settings", "menu_config"), { menuData: defaultMenuData });
         menuData = defaultMenuData;
       }
       renderMenu();
     });
-
-    window.saveProductToDatabase = async function(productData) {
-      try {
-        await addDoc(collection(window.db, "products"), productData);
-      } catch (e) {
-        console.error("Firebase Add Product Error: ", e);
-      }
-    };
-
-    window.saveMenuToDatabase = async function(updatedMenuData) {
-      try {
-        await setDoc(doc(window.db, "settings", "menu_config"), { menuData: updatedMenuData });
-      } catch (e) {
-        console.error("Firebase Save Menu Error: ", e);
-      }
-    };
   </script>
 </body>
 </html>
