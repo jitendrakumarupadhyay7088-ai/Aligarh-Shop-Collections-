@@ -567,6 +567,15 @@
       cursor: pointer;
     }
 
+    .coupon-msg {
+      font-size: 12px;
+      margin-top: 6px;
+      font-weight: 600;
+    }
+
+    .coupon-msg.success { color: #16a34a; }
+    .coupon-msg.error { color: #ef4444; }
+
     .cart-summary-row {
       display: flex;
       justify-content: space-between;
@@ -2053,7 +2062,7 @@
       container.appendChild(row);
     }
 
-    // UTILITY: CANVAS-BASED AUTOMATIC IMAGE COMPRESSION (Max width 800px, 70% JPEG quality)
+    // CANVAS-BASED IMAGE COMPRESSION (Optimized to prevent 1MB Firestore size limit)
     function compressImage(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -2063,7 +2072,7 @@
           img.src = e.target.result;
           img.onload = () => {
             const canvas = document.createElement('canvas');
-            const maxW = 800;
+            const maxW = 600;
             let width = img.width;
             let height = img.height;
 
@@ -2077,8 +2086,7 @@
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
             
-            // Compress quality to 70% JPEG
-            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
             resolve(compressedBase64);
           };
           img.onerror = (err) => reject(err);
@@ -2087,11 +2095,10 @@
       });
     }
 
-    // MULTIPLE IMAGE PREVIEW WITH AUTO COMPRESSION
     async function previewImages(event) {
       const files = Array.from(event.target.files);
       const previewBox = document.getElementById('imagePreviewBox');
-      previewBox.innerHTML = '<span style="color:#0284c7; font-size:13px; font-weight:600;"><i class="fa-solid fa-spinner fa-spin"></i> Resizing and optimizing images...</span>';
+      previewBox.innerHTML = '<span style="color:#0284c7; font-size:13px; font-weight:600;"><i class="fa-solid fa-spinner fa-spin"></i> Optimizing images...</span>';
       selectedBase64Images = [];
 
       if (files && files.length > 0) {
@@ -2118,7 +2125,7 @@
     async function previewEditImages(event) {
       const files = Array.from(event.target.files);
       const previewBox = document.getElementById('editImagePreviewBox');
-      previewBox.innerHTML = '<span style="color:#0284c7; font-size:13px; font-weight:600;"><i class="fa-solid fa-spinner fa-spin"></i> Resizing and optimizing images...</span>';
+      previewBox.innerHTML = '<span style="color:#0284c7; font-size:13px; font-weight:600;"><i class="fa-solid fa-spinner fa-spin"></i> Optimizing images...</span>';
       editBase64Images = [];
 
       if (files && files.length > 0) {
@@ -2176,7 +2183,7 @@
         name: name,
         category: category,
         images: selectedBase64Images,
-        image: selectedBase64Images[0], // fallback for backward compatibility
+        image: selectedBase64Images[0], 
         isOutOfStock: isOutOfStock,
         variants: variants
       };
@@ -2424,7 +2431,8 @@
 
       document.getElementById('addMenuForm').reset();
       toggleParentMenuSelect();
-      alert("New Menu / Submenu item added successfully across all devices!");
+      renderMenu();
+      alert("New Menu / Submenu item added successfully!");
     }
 
     function populateMenuManagerUI() {
@@ -2476,6 +2484,7 @@
       if (window.saveMenuToDatabase) {
         window.saveMenuToDatabase(menuData);
       }
+      renderMenu();
     }
 
     renderMenu();
