@@ -305,7 +305,7 @@
       z-index: 5;
     }
 
-    .add-to-cart-btn:disabled {
+    .add-to-cart-btn:disabled, .view-details-btn:disabled {
       background-color: #94a3b8;
       cursor: not-allowed;
     }
@@ -332,6 +332,7 @@
       object-fit: contain;
       background-color: #f8fafc;
       padding: 8px;
+      cursor: pointer;
     }
 
     .product-info {
@@ -356,6 +357,11 @@
       color: #1e293b;
       margin-bottom: 12px;
       line-height: 1.3;
+      cursor: pointer;
+    }
+
+    .product-title:hover {
+      color: #0284c7;
     }
 
     .size-label {
@@ -404,8 +410,30 @@
       margin-top: auto;
     }
 
+    .card-action-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .view-details-btn {
+      flex: 1;
+      padding: 10px;
+      background-color: #f1f5f9;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: background 0.2s;
+    }
+
+    .view-details-btn:hover {
+      background-color: #e2e8f0;
+    }
+
     .add-to-cart-btn {
-      width: 100%;
+      flex: 1;
       padding: 10px;
       background-color: #0284c7;
       color: #ffffff;
@@ -413,7 +441,7 @@
       border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 13px;
       transition: background 0.2s;
     }
 
@@ -810,6 +838,42 @@
       font-size: 12px;
     }
 
+    /* PRODUCT DETAIL MODAL STYLES */
+    .product-detail-container {
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+    }
+
+    .product-detail-image-box {
+      flex: 1;
+      max-width: 250px;
+      text-align: center;
+    }
+
+    .product-detail-image-box img {
+      width: 100%;
+      max-height: 280px;
+      object-fit: contain;
+      border-radius: 8px;
+      background-color: #f8fafc;
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .product-detail-info {
+      flex: 1.5;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-detail-desc {
+      font-size: 14px;
+      color: #475569;
+      margin: 10px 0;
+      line-height: 1.5;
+    }
+
     footer {
       background-color: #ffffff;
       color: #64748b;
@@ -905,6 +969,14 @@
       .product-info {
         padding: 10px;
       }
+
+      .product-detail-container {
+        flex-direction: column;
+      }
+
+      .product-detail-image-box {
+        max-width: 100%;
+      }
     }
   </style>
 </head>
@@ -943,6 +1015,39 @@
   <div class="main-content">
     <h2 class="section-title" id="categoryTitle">All Collections</h2>
     <div class="products-grid" id="productsGrid"></div>
+  </div>
+
+  <!-- PRODUCT DETAIL POPUP MODAL -->
+  <div class="admin-modal-overlay" id="productDetailModalOverlay">
+    <div class="admin-modal" style="max-width: 600px;">
+      <div class="admin-header">
+        <h3 id="detailModalTitle"><i class="fa-solid fa-circle-info"></i> Product Details</h3>
+        <button class="close-cart-btn" onclick="closeProductDetailModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="admin-body">
+        <div class="product-detail-container">
+          <div class="product-detail-image-box">
+            <img id="detailModalImage" src="" alt="Product Image">
+          </div>
+          <div class="product-detail-info">
+            <span class="product-category" id="detailModalCategory">Category</span>
+            <h3 class="product-title" id="detailModalName" style="font-size: 18px; margin-bottom: 6px;">Product Name</h3>
+            <div class="product-price" id="detailModalPrice" style="font-size: 22px; margin-bottom: 10px;">₹0</div>
+            
+            <p class="product-detail-desc" id="detailModalDesc">
+              High quality premium apparel carefully crafted for everyday comfort and style. Available in multiple sizes with attractive pricing options.
+            </p>
+
+            <div class="size-label">Available Sizes:</div>
+            <div class="size-options" id="detailModalSizes"></div>
+
+            <button class="add-to-cart-btn" id="detailModalCartBtn" style="margin-top: 15px; padding: 12px;">
+              <i class="fa-solid fa-cart-plus"></i> Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- SHOPPING CART POPUP -->
@@ -1091,6 +1196,11 @@
             </div>
 
             <div class="form-group">
+              <label>Product Description (Optional)</label>
+              <textarea id="newProdDesc" rows="2" placeholder="Product details, fabric info, etc."></textarea>
+            </div>
+
+            <div class="form-group">
               <label>Category (Category Tag)</label>
               <select id="newProdCategory" required></select>
             </div>
@@ -1205,6 +1315,11 @@
           <div class="form-group">
             <label>Product Name</label>
             <input type="text" id="editProdName" required>
+          </div>
+
+          <div class="form-group">
+            <label>Product Description</label>
+            <textarea id="editProdDesc" rows="2"></textarea>
           </div>
 
           <div class="form-group">
@@ -1457,10 +1572,10 @@
         const productHTML = `
           <div class="product-card ${isOutOfStock ? 'out-of-stock' : ''}" id="product-${product.id}">
             ${isOutOfStock ? '<div class="out-of-stock-badge">Out of Stock</div>' : ''}
-            <img src="${product.image}" alt="${product.name}" class="product-image">
+            <img src="${product.image}" alt="${product.name}" class="product-image" onclick="openProductDetailModal('${product.id}')">
             <div class="product-info">
               <span class="product-category">${(product.category || '').replace('-', ' ')}</span>
-              <div class="product-title">${product.name}</div>
+              <div class="product-title" onclick="openProductDetailModal('${product.id}')">${product.name}</div>
               
               <div class="size-label">Select Size:</div>
               <div class="size-options">
@@ -1469,16 +1584,91 @@
               
               <div class="product-price" id="price-${product.id}">₹${currentPrice.toLocaleString()}</div>
               
-              <button class="add-to-cart-btn" 
-                      onclick="addToCart('${product.id}')" 
-                      ${isOutOfStock ? 'disabled' : ''}>
-                ${isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
-              </button>
+              <div class="card-action-btns">
+                <button class="view-details-btn" onclick="openProductDetailModal('${product.id}')">View Details</button>
+                <button class="add-to-cart-btn" 
+                        onclick="addToCart('${product.id}')" 
+                        ${isOutOfStock ? 'disabled' : ''}>
+                  ${isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+                </button>
+              </div>
             </div>
           </div>
         `;
         grid.innerHTML += productHTML;
       });
+    }
+
+    /* PRODUCT DETAIL MODAL FUNCTIONS */
+    function openProductDetailModal(productId) {
+      const product = products.find(p => String(p.id) === String(productId));
+      if (!product) return;
+
+      document.getElementById('detailModalName').innerText = product.name;
+      document.getElementById('detailModalCategory').innerText = (product.category || '').replace('-', ' ');
+      document.getElementById('detailModalImage').src = product.image;
+      
+      if (product.description) {
+        document.getElementById('detailModalDesc').innerText = product.description;
+      } else {
+        document.getElementById('detailModalDesc').innerText = "High quality premium apparel carefully crafted for everyday comfort and style. Available in multiple sizes with attractive pricing options.";
+      }
+
+      if (!selectedVariants[product.id] && product.variants && product.variants.length > 0) {
+        selectedVariants[product.id] = {
+          size: product.variants[0].size,
+          price: product.variants[0].price
+        };
+      }
+
+      const currentPrice = selectedVariants[product.id] ? selectedVariants[product.id].price : (product.variants && product.variants[0] ? product.variants[0].price : 0);
+      document.getElementById('detailModalPrice').innerText = `₹${currentPrice.toLocaleString()}`;
+
+      let sizeBtnsHTML = '';
+      if (product.variants && product.variants.length > 0) {
+        product.variants.forEach((v) => {
+          const isSelected = selectedVariants[product.id] && selectedVariants[product.id].size === v.size;
+          const activeClass = isSelected ? 'active' : '';
+          sizeBtnsHTML += `
+            <button class="size-btn ${activeClass}" 
+                    onclick="selectModalSize('${product.id}', '${v.size}', ${v.price}, this)"
+                    ${product.isOutOfStock ? 'disabled' : ''}>
+              ${v.size}
+            </button>
+          `;
+        });
+      }
+      document.getElementById('detailModalSizes').innerHTML = sizeBtnsHTML;
+
+      const cartBtn = document.getElementById('detailModalCartBtn');
+      if (product.isOutOfStock) {
+        cartBtn.disabled = true;
+        cartBtn.innerText = "Out of Stock";
+      } else {
+        cartBtn.disabled = false;
+        cartBtn.innerHTML = `<i class="fa-solid fa-cart-plus"></i> Add to Cart`;
+        cartBtn.onclick = function() {
+          addToCart(product.id);
+          closeProductDetailModal();
+        };
+      }
+
+      document.getElementById('productDetailModalOverlay').classList.add('open');
+    }
+
+    function selectModalSize(productId, selectedSize, price, btnElement) {
+      const container = document.getElementById('detailModalSizes');
+      if (container) {
+        container.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
+      }
+      btnElement.classList.add('active');
+
+      selectSize(productId, selectedSize, price, btnElement);
+      document.getElementById('detailModalPrice').innerText = `₹${price.toLocaleString()}`;
+    }
+
+    function closeProductDetailModal() {
+      document.getElementById('productDetailModalOverlay').classList.remove('open');
     }
 
     function selectSize(productId, selectedSize, price, btnElement) {
@@ -1826,6 +2016,7 @@
       e.preventDefault();
       
       const name = document.getElementById('newProdName').value;
+      const desc = document.getElementById('newProdDesc').value;
       const category = document.getElementById('newProdCategory').value;
       const isOutOfStock = document.getElementById('newProdOutOfStock').checked;
 
@@ -1855,6 +2046,7 @@
 
       const newProduct = {
         name: name,
+        description: desc,
         category: category,
         image: selectedBase64Image,
         isOutOfStock: isOutOfStock,
@@ -1934,6 +2126,7 @@
 
       document.getElementById('editProdId').value = product.id;
       document.getElementById('editProdName').value = product.name;
+      document.getElementById('editProdDesc').value = product.description || '';
       document.getElementById('editProdCategory').value = product.category;
       document.getElementById('editProdOutOfStock').checked = !!product.isOutOfStock;
       
@@ -1963,6 +2156,7 @@
 
       const prodId = document.getElementById('editProdId').value;
       const name = document.getElementById('editProdName').value;
+      const desc = document.getElementById('editProdDesc').value;
       const category = document.getElementById('editProdCategory').value;
       const isOutOfStock = document.getElementById('editProdOutOfStock').checked;
 
@@ -1988,6 +2182,7 @@
       const prodIndex = products.findIndex(p => String(p.id) === String(prodId));
       if (prodIndex !== -1) {
         products[prodIndex].name = name;
+        products[prodIndex].description = desc;
         products[prodIndex].category = category;
         products[prodIndex].image = editBase64Image;
         products[prodIndex].isOutOfStock = isOutOfStock;
@@ -2005,6 +2200,7 @@
           const docRef = doc(window.db, "products", String(prodId));
           await updateDoc(docRef, {
             name: name,
+            description: desc,
             category: category,
             image: editBase64Image,
             isOutOfStock: isOutOfStock,
