@@ -594,6 +594,20 @@
       cursor: pointer;
     }
 
+    .coupon-msg {
+      font-size: 12px;
+      margin-top: 6px;
+      font-weight: 600;
+    }
+
+    .coupon-msg.success {
+      color: #16a34a;
+    }
+
+    .coupon-msg.error {
+      color: #ef4444;
+    }
+
     .cart-summary-row {
       display: flex;
       justify-content: space-between;
@@ -872,14 +886,13 @@
       font-size: 12px;
     }
 
-    /* SCREENSHOT STYLE PRODUCT DETAIL MODAL (2-COLUMN IMAGE GRID) */
+    /* PRODUCT DETAIL MODAL (2-COLUMN GRID) */
     .product-detail-container {
       display: flex;
       flex-direction: row;
       gap: 20px;
     }
 
-    /* 2-Column Libas-Style Grid Container */
     .product-detail-image-box {
       flex: 1.2;
       max-width: 310px;
@@ -1065,7 +1078,7 @@
     <div class="products-grid" id="productsGrid"></div>
   </div>
 
-  <!-- SCREENSHOT STYLE PRODUCT DETAIL POPUP MODAL -->
+  <!-- PRODUCT DETAIL POPUP MODAL -->
   <div class="admin-modal-overlay" id="productDetailModalOverlay">
     <div class="admin-modal" style="max-width: 680px;">
       <div class="admin-header">
@@ -1075,7 +1088,7 @@
       <div class="admin-body">
         <div class="product-detail-container">
           
-          <!-- 2-COLUMN MULTI IMAGE GRID VIEW (LIKE LIBAS) -->
+          <!-- 2-COLUMN MULTI IMAGE GRID VIEW -->
           <div class="product-detail-image-box" id="detailModalImageGrid"></div>
 
           <div class="product-detail-info">
@@ -1261,7 +1274,7 @@
               </label>
             </div>
 
-            <!-- MULTIPLE FILE INPUT WITH OPTIMIZATION -->
+            <!-- MULTIPLE FILE INPUT -->
             <div class="form-group">
               <label><i class="fa-solid fa-images"></i> Select Product Photos (Multiple Photos Allowed - Front, Back, Zoom, Size Chart)</label>
               <input type="file" id="newProdFile" accept="image/*" multiple onchange="previewImages(event)" required>
@@ -1384,7 +1397,7 @@
             </label>
           </div>
 
-          <!-- MULTIPLE PHOTO EDITING WITH REMOVE OPTION -->
+          <!-- MULTIPLE PHOTO EDITING -->
           <div class="form-group">
             <label><i class="fa-solid fa-images"></i> Product Photos (Add more or remove existing ones)</label>
             <input type="file" id="editProdFile" accept="image/*" multiple onchange="previewEditImages(event)">
@@ -1425,7 +1438,7 @@
     let selectedBase64Images = []; 
     let editBase64Images = [];     
 
-    // Client-side image compressor to avoid exceeding Firestore limits
+    // Client-side image compressor
     function compressImage(file, maxWidth = 800, quality = 0.75) {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -2070,7 +2083,7 @@
       container.appendChild(row);
     }
 
-    // MULTIPLE IMAGE PREVIEW WITH AUTOMATIC COMPRESSION (ADD PRODUCT)
+    // MULTIPLE IMAGE PREVIEW (ADD PRODUCT)
     async function previewImages(event) {
       const files = Array.from(event.target.files);
       const previewBox = document.getElementById('imagePreviewBox');
@@ -2120,7 +2133,7 @@
       }
     }
 
-    // MULTIPLE IMAGE PREVIEW WITH COMPRESSION (EDIT PRODUCT)
+    // MULTIPLE IMAGE PREVIEW (EDIT PRODUCT)
     async function previewEditImages(event) {
       const files = Array.from(event.target.files);
       if (files.length === 0) return;
