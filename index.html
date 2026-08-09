@@ -902,51 +902,91 @@
       font-size: 12px;
     }
 
-    /* PRODUCT DETAIL MODAL (2-COLUMN GRID) */
+    /* PRODUCT DETAIL MODAL ALIGNMENT FIX */
     .product-detail-container {
       display: flex;
       flex-direction: row;
-      gap: 20px;
+      gap: 24px;
+      align-items: flex-start;
     }
 
-    .product-detail-image-box {
-      flex: 1.2;
-      max-width: 310px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      max-height: 420px;
-      overflow-y: auto;
-      padding-right: 4px;
-    }
-
-    .product-detail-image-box img {
+    .product-detail-gallery {
+      flex: 1.1;
+      max-width: 300px;
       width: 100%;
-      height: 140px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .main-image-wrapper {
+      width: 100%;
+      height: 250px;
+      background-color: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .main-image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .thumbnail-list {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .thumbnail-list img {
+      width: 52px;
+      height: 52px;
       object-fit: cover;
       border-radius: 6px;
-      background-color: #f8fafc;
-      border: 1px solid #e2e8f0;
-      transition: transform 0.2s, border-color 0.2s;
+      border: 1px solid #cbd5e1;
       cursor: pointer;
+      opacity: 0.7;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
     }
 
-    .product-detail-image-box img:hover {
-      transform: scale(1.02);
+    .thumbnail-list img:hover, .thumbnail-list img.active {
+      opacity: 1;
       border-color: #0284c7;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.3);
     }
 
     .product-detail-info {
-      flex: 1.5;
+      flex: 1.2;
       display: flex;
       flex-direction: column;
     }
 
     .product-detail-desc {
-      font-size: 14px;
+      font-size: 13px;
       color: #475569;
-      margin: 10px 0;
+      margin: 8px 0 14px 0;
       line-height: 1.5;
+    }
+
+    #detailModalCartBtn {
+      width: 100%;
+      height: 44px; /* Fixed height so it doesn't stretch */
+      padding: 10px 16px;
+      margin-top: 18px;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 8px;
     }
 
     footer {
@@ -1054,10 +1094,12 @@
         flex-direction: column;
       }
 
-      .product-detail-image-box {
+      .product-detail-gallery {
         max-width: 100%;
-        max-height: 320px;
-        grid-template-columns: 1fr 1fr;
+      }
+
+      .main-image-wrapper {
+        height: 220px;
       }
     }
   </style>
@@ -1099,7 +1141,7 @@
     <div class="products-grid" id="productsGrid"></div>
   </div>
 
-  <!-- PRODUCT DETAIL POPUP MODAL -->
+  <!-- PRODUCT DETAIL POPUP MODAL (FIXED UI) -->
   <div class="admin-modal-overlay" id="productDetailModalOverlay">
     <div class="admin-modal" style="max-width: 680px;">
       <div class="admin-header">
@@ -1109,8 +1151,13 @@
       <div class="admin-body">
         <div class="product-detail-container">
           
-          <!-- 2-COLUMN MULTI IMAGE GRID VIEW -->
-          <div class="product-detail-image-box" id="detailModalImageGrid"></div>
+          <!-- IMAGE GALLERY VIEW (MAIN IMAGE + THUMBNAILS) -->
+          <div class="product-detail-gallery">
+            <div class="main-image-wrapper">
+              <img id="detailModalMainImg" src="" alt="Product Image">
+            </div>
+            <div class="thumbnail-list" id="detailModalThumbnails"></div>
+          </div>
 
           <div class="product-detail-info">
             <span class="product-category" id="detailModalCategory">Category</span>
@@ -1124,7 +1171,7 @@
             <div class="size-label">Available Sizes:</div>
             <div class="size-options" id="detailModalSizes"></div>
 
-            <button class="add-to-cart-btn" id="detailModalCartBtn" style="margin-top: 15px; padding: 12px;">
+            <button class="add-to-cart-btn" id="detailModalCartBtn">
               <i class="fa-solid fa-cart-plus"></i> Add to Cart
             </button>
           </div>
@@ -1712,6 +1759,7 @@
       });
     }
 
+    /* UPDATED PRODUCT DETAIL MODAL FUNCTION */
     function openProductDetailModal(productId) {
       const product = products.find(p => String(p.id) === String(productId));
       if (!product) return;
@@ -1719,16 +1767,36 @@
       document.getElementById('detailModalName').innerText = product.name;
       document.getElementById('detailModalCategory').innerText = (product.category || '').replace('-', ' ');
       
-      const imageGrid = document.getElementById('detailModalImageGrid');
-      imageGrid.innerHTML = '';
-
-      const imagesArray = (product.images && product.images.length > 0) ? product.images : [product.image];
-      imagesArray.forEach((imgSrc) => {
-        if(imgSrc) {
-          imageGrid.innerHTML += `<img src="${imgSrc}" alt="${product.name}" title="Click to view">`;
-        }
-      });
+      const imagesArray = (product.images && product.images.length > 0) ? product.images : (product.image ? [product.image] : []);
+      const mainImgElem = document.getElementById('detailModalMainImg');
+      const thumbsContainer = document.getElementById('detailModalThumbnails');
       
+      if (imagesArray.length > 0) {
+        mainImgElem.src = imagesArray[0];
+      } else {
+        mainImgElem.src = '';
+      }
+
+      thumbsContainer.innerHTML = '';
+      if (imagesArray.length > 1) {
+        imagesArray.forEach((imgSrc, idx) => {
+          const thumb = document.createElement('img');
+          thumb.src = imgSrc;
+          thumb.alt = product.name;
+          if (idx === 0) thumb.classList.add('active');
+          
+          thumb.onclick = function() {
+            mainImgElem.src = imgSrc;
+            thumbsContainer.querySelectorAll('img').forEach(t => t.classList.remove('active'));
+            thumb.classList.add('active');
+          };
+          thumbsContainer.appendChild(thumb);
+        });
+        thumbsContainer.style.display = 'flex';
+      } else {
+        thumbsContainer.style.display = 'none';
+      }
+
       if (product.description) {
         document.getElementById('detailModalDesc').innerText = product.description;
       } else {
