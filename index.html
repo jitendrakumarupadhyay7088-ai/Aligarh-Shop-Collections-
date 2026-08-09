@@ -736,7 +736,7 @@
 
     .image-preview {
       width: 100%;
-      min-height: 100px;
+      height: 120px;
       border: 2px dashed #cbd5e1;
       border-radius: 6px;
       margin-top: 8px;
@@ -747,24 +747,12 @@
       font-size: 13px;
       overflow: hidden;
       background-color: #f8fafc;
-      padding: 8px;
     }
 
-    /* Multiple Image Admin Preview Grid */
-    .image-preview-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
-      gap: 8px;
+    .image-preview img {
       width: 100%;
-      margin-top: 8px;
-    }
-
-    .image-preview-grid img {
-      width: 100%;
-      height: 75px;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid #cbd5e1;
+      height: 100%;
+      object-fit: contain;
     }
 
     .variant-row {
@@ -850,39 +838,27 @@
       font-size: 12px;
     }
 
-    /* SCREENSHOT STYLE PRODUCT DETAIL MODAL (2-COLUMN IMAGE GRID) */
+    /* PRODUCT DETAIL MODAL STYLES */
     .product-detail-container {
       display: flex;
       flex-direction: row;
       gap: 20px;
     }
 
-    /* 2-Column Libas-Style Grid Container */
     .product-detail-image-box {
-      flex: 1.2;
-      max-width: 310px;
-      display: grid;
-      grid-template-columns: 1fr 1fr; /* 2 Column Grid Layout */
-      gap: 8px;
-      max-height: 420px;
-      overflow-y: auto;
-      padding-right: 4px;
+      flex: 1;
+      max-width: 250px;
+      text-align: center;
     }
 
     .product-detail-image-box img {
       width: 100%;
-      height: 140px;
-      object-fit: cover;
-      border-radius: 6px;
+      max-height: 280px;
+      object-fit: contain;
+      border-radius: 8px;
       background-color: #f8fafc;
+      padding: 10px;
       border: 1px solid #e2e8f0;
-      transition: transform 0.2s, border-color 0.2s;
-      cursor: pointer;
-    }
-
-    .product-detail-image-box img:hover {
-      transform: scale(1.02);
-      border-color: #0284c7;
     }
 
     .product-detail-info {
@@ -1000,8 +976,6 @@
 
       .product-detail-image-box {
         max-width: 100%;
-        max-height: 320px;
-        grid-template-columns: 1fr 1fr;
       }
     }
   </style>
@@ -1043,19 +1017,18 @@
     <div class="products-grid" id="productsGrid"></div>
   </div>
 
-  <!-- SCREENSHOT STYLE PRODUCT DETAIL POPUP MODAL -->
+  <!-- PRODUCT DETAIL POPUP MODAL -->
   <div class="admin-modal-overlay" id="productDetailModalOverlay">
-    <div class="admin-modal" style="max-width: 680px;">
+    <div class="admin-modal" style="max-width: 600px;">
       <div class="admin-header">
         <h3 id="detailModalTitle"><i class="fa-solid fa-circle-info"></i> Product Details</h3>
         <button class="close-cart-btn" onclick="closeProductDetailModal()"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="admin-body">
         <div class="product-detail-container">
-          
-          <!-- 2-COLUMN MULTI IMAGE GRID VIEW (LIKE LIBAS) -->
-          <div class="product-detail-image-box" id="detailModalImageGrid"></div>
-
+          <div class="product-detail-image-box">
+            <img id="detailModalImage" src="" alt="Product Image">
+          </div>
           <div class="product-detail-info">
             <span class="product-category" id="detailModalCategory">Category</span>
             <h3 class="product-title" id="detailModalName" style="font-size: 18px; margin-bottom: 6px;">Product Name</h3>
@@ -1239,12 +1212,11 @@
               </label>
             </div>
 
-            <!-- UPDATED MULTIPLE FILE INPUT -->
             <div class="form-group">
-              <label><i class="fa-solid fa-images"></i> Select Product Photos (Multiple Photos Allowed - Front, Back, Zoom, Size Chart)</label>
-              <input type="file" id="newProdFile" accept="image/*" multiple onchange="previewImages(event)" required>
+              <label><i class="fa-solid fa-image"></i> Select Product Photo (Upload)</label>
+              <input type="file" id="newProdFile" accept="image/*" onchange="previewImage(event)" required>
               <div class="image-preview" id="imagePreviewBox">
-                <span>Photos Preview will appear here</span>
+                <span>Photo Preview will appear here</span>
               </div>
             </div>
 
@@ -1362,10 +1334,9 @@
             </label>
           </div>
 
-          <!-- MULTIPLE PHOTO EDITING -->
           <div class="form-group">
-            <label><i class="fa-solid fa-images"></i> Product Photos (Multiple Photos Allowed - Leave blank to keep current photos)</label>
-            <input type="file" id="editProdFile" accept="image/*" multiple onchange="previewEditImages(event)">
+            <label><i class="fa-solid fa-image"></i> Product Photo (Leave blank to keep current photo)</label>
+            <input type="file" id="editProdFile" accept="image/*" onchange="previewEditImage(event)">
             <div class="image-preview" id="editImagePreviewBox"></div>
           </div>
 
@@ -1400,8 +1371,8 @@
     };
 
     let appliedCoupon = null;
-    let selectedBase64Images = []; // Array to store multiple product images
-    let editBase64Images = [];     // Array for edited images
+    let selectedBase64Image = "";
+    let editBase64Image = ""; 
 
     function toggleMobileMenu() {
       const nav = document.getElementById('navbar');
@@ -1597,14 +1568,11 @@
 
         const currentPrice = selectedVariants[product.id] ? selectedVariants[product.id].price : (product.variants && product.variants[0] ? product.variants[0].price : 0);
         const isOutOfStock = product.isOutOfStock;
-        
-        // Main thumbnail image logic (handles multiple images fallback)
-        const mainImage = (product.images && product.images.length > 0) ? product.images[0] : (product.image || '');
 
         const productHTML = `
           <div class="product-card ${isOutOfStock ? 'out-of-stock' : ''}" id="product-${product.id}">
             ${isOutOfStock ? '<div class="out-of-stock-badge">Out of Stock</div>' : ''}
-            <img src="${mainImage}" alt="${product.name}" class="product-image" onclick="openProductDetailModal('${product.id}')">
+            <img src="${product.image}" alt="${product.name}" class="product-image" onclick="openProductDetailModal('${product.id}')">
             <div class="product-info">
               <span class="product-category">${(product.category || '').replace('-', ' ')}</span>
               <div class="product-title" onclick="openProductDetailModal('${product.id}')">${product.name}</div>
@@ -1631,24 +1599,14 @@
       });
     }
 
-    /* PRODUCT DETAIL MODAL FUNCTIONS (SCREENSHOT STYLE 2-COLUMN MULTI-IMAGE GRID) */
+    /* PRODUCT DETAIL MODAL FUNCTIONS */
     function openProductDetailModal(productId) {
       const product = products.find(p => String(p.id) === String(productId));
       if (!product) return;
 
       document.getElementById('detailModalName').innerText = product.name;
       document.getElementById('detailModalCategory').innerText = (product.category || '').replace('-', ' ');
-      
-      // Render 2-Column Images Grid
-      const imageGrid = document.getElementById('detailModalImageGrid');
-      imageGrid.innerHTML = '';
-
-      const imagesArray = (product.images && product.images.length > 0) ? product.images : [product.image];
-      imagesArray.forEach((imgSrc) => {
-        if(imgSrc) {
-          imageGrid.innerHTML += `<img src="${imgSrc}" alt="${product.name}" title="Click to view">`;
-        }
-      });
+      document.getElementById('detailModalImage').src = product.image;
       
       if (product.description) {
         document.getElementById('detailModalDesc').innerText = product.description;
@@ -1744,15 +1702,13 @@
 
       const existingItem = cart.find(item => String(item.id) === String(productId) && item.size === variant.size);
 
-      const mainImage = (product.images && product.images.length > 0) ? product.images[0] : (product.image || '');
-
       if (existingItem) {
         existingItem.qty += 1;
       } else {
         cart.push({
           id: product.id,
           name: product.name,
-          image: mainImage,
+          image: product.image,
           size: variant.size,
           price: variant.price,
           qty: 1
@@ -2025,54 +1981,35 @@
       container.appendChild(row);
     }
 
-    // MULTIPLE IMAGE PREVIEW (ADD PRODUCT)
-    function previewImages(event) {
-      const files = Array.from(event.target.files);
+    function previewImage(event) {
+      const file = event.target.files[0];
       const previewBox = document.getElementById('imagePreviewBox');
-      selectedBase64Images = [];
 
-      if (files.length === 0) {
-        previewBox.className = "image-preview";
-        previewBox.innerHTML = `<span>Photos Preview will appear here</span>`;
-        return;
-      }
-
-      previewBox.className = "image-preview-grid";
-      previewBox.innerHTML = "";
-
-      files.forEach(file => {
+      if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          selectedBase64Images.push(e.target.result);
-          const img = document.createElement('img');
-          img.src = e.target.result;
-          previewBox.appendChild(img);
+          selectedBase64Image = e.target.result;
+          previewBox.innerHTML = `<img src="${selectedBase64Image}" alt="Selected Image">`;
         };
         reader.readAsDataURL(file);
-      });
+      } else {
+        selectedBase64Image = "";
+        previewBox.innerHTML = `<span>Photo Preview will appear here</span>`;
+      }
     }
 
-    // MULTIPLE IMAGE PREVIEW (EDIT PRODUCT)
-    function previewEditImages(event) {
-      const files = Array.from(event.target.files);
+    function previewEditImage(event) {
+      const file = event.target.files[0];
       const previewBox = document.getElementById('editImagePreviewBox');
-      editBase64Images = [];
 
-      if (files.length === 0) return;
-
-      previewBox.className = "image-preview-grid";
-      previewBox.innerHTML = "";
-
-      files.forEach(file => {
+      if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          editBase64Images.push(e.target.result);
-          const img = document.createElement('img');
-          img.src = e.target.result;
-          previewBox.appendChild(img);
+          editBase64Image = e.target.result;
+          previewBox.innerHTML = `<img src="${editBase64Image}" alt="Selected Image">`;
         };
         reader.readAsDataURL(file);
-      });
+      }
     }
 
     function handleNewProductSubmit(e) {
@@ -2083,8 +2020,8 @@
       const category = document.getElementById('newProdCategory').value;
       const isOutOfStock = document.getElementById('newProdOutOfStock').checked;
 
-      if (selectedBase64Images.length === 0) {
-        alert("Please select at least one photo!");
+      if (!selectedBase64Image) {
+        alert("Please select a photo first!");
         return;
       }
 
@@ -2111,8 +2048,7 @@
         name: name,
         description: desc,
         category: category,
-        images: selectedBase64Images,
-        image: selectedBase64Images[0], // Primary image fallback
+        image: selectedBase64Image,
         isOutOfStock: isOutOfStock,
         variants: variants
       };
@@ -2122,13 +2058,11 @@
       }
 
       closeAdminPanel();
-      alert("Product with multiple photos added successfully!");
+      alert("Product added successfully!");
 
       document.getElementById('addProductForm').reset();
-      selectedBase64Images = [];
-      const previewBox = document.getElementById('imagePreviewBox');
-      previewBox.className = "image-preview";
-      previewBox.innerHTML = `<span>Photos Preview will appear here</span>`;
+      selectedBase64Image = "";
+      document.getElementById('imagePreviewBox').innerHTML = `<span>Photo Preview will appear here</span>`;
     }
 
     function populateProductManagerUI() {
@@ -2143,11 +2077,9 @@
       }
 
       products.forEach(product => {
-        const thumbImg = (product.images && product.images.length > 0) ? product.images[0] : (product.image || '');
-
         tbody.innerHTML += `
           <tr>
-            <td><img src="${thumbImg}" style="width: 40px; height: 40px; object-fit: contain; border-radius: 4px;"></td>
+            <td><img src="${product.image}" style="width: 40px; height: 40px; object-fit: contain; border-radius: 4px;"></td>
             <td><strong>${product.name}</strong></td>
             <td><code>${product.category}</code></td>
             <td>
@@ -2198,15 +2130,8 @@
       document.getElementById('editProdCategory').value = product.category;
       document.getElementById('editProdOutOfStock').checked = !!product.isOutOfStock;
       
-      editBase64Images = (product.images && product.images.length > 0) ? [...product.images] : (product.image ? [product.image] : []);
-      
-      const previewBox = document.getElementById('editImagePreviewBox');
-      previewBox.className = "image-preview-grid";
-      previewBox.innerHTML = "";
-      editBase64Images.forEach(imgSrc => {
-        previewBox.innerHTML += `<img src="${imgSrc}" alt="Product Image">`;
-      });
-
+      editBase64Image = product.image;
+      document.getElementById('editImagePreviewBox').innerHTML = `<img src="${product.image}" alt="Product Image">`;
       document.getElementById('editProdFile').value = "";
 
       const container = document.getElementById('editVariantsContainer');
@@ -2259,8 +2184,7 @@
         products[prodIndex].name = name;
         products[prodIndex].description = desc;
         products[prodIndex].category = category;
-        products[prodIndex].images = editBase64Images;
-        products[prodIndex].image = editBase64Images[0] || '';
+        products[prodIndex].image = editBase64Image;
         products[prodIndex].isOutOfStock = isOutOfStock;
         products[prodIndex].variants = variants;
 
@@ -2278,8 +2202,7 @@
             name: name,
             description: desc,
             category: category,
-            images: editBase64Images,
-            image: editBase64Images[0] || '',
+            image: editBase64Image,
             isOutOfStock: isOutOfStock,
             variants: variants
           });
