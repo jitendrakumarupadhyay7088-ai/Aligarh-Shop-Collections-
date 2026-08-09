@@ -759,12 +759,34 @@
       margin-top: 8px;
     }
 
-    .image-preview-grid img {
+    .preview-thumb-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .preview-thumb-wrapper img {
       width: 100%;
       height: 75px;
       object-fit: cover;
       border-radius: 6px;
       border: 1px solid #cbd5e1;
+    }
+
+    .preview-thumb-remove {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #ef4444;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
     .variant-row {
@@ -862,7 +884,7 @@
       flex: 1.2;
       max-width: 310px;
       display: grid;
-      grid-template-columns: 1fr 1fr; /* 2 Column Grid Layout */
+      grid-template-columns: 1fr 1fr;
       gap: 8px;
       max-height: 420px;
       overflow-y: auto;
@@ -1239,7 +1261,7 @@
               </label>
             </div>
 
-            <!-- UPDATED MULTIPLE FILE INPUT -->
+            <!-- MULTIPLE FILE INPUT WITH OPTIMIZATION -->
             <div class="form-group">
               <label><i class="fa-solid fa-images"></i> Select Product Photos (Multiple Photos Allowed - Front, Back, Zoom, Size Chart)</label>
               <input type="file" id="newProdFile" accept="image/*" multiple onchange="previewImages(event)" required>
@@ -1362,9 +1384,9 @@
             </label>
           </div>
 
-          <!-- MULTIPLE PHOTO EDITING -->
+          <!-- MULTIPLE PHOTO EDITING WITH REMOVE OPTION -->
           <div class="form-group">
-            <label><i class="fa-solid fa-images"></i> Product Photos (Multiple Photos Allowed - Leave blank to keep current photos)</label>
+            <label><i class="fa-solid fa-images"></i> Product Photos (Add more or remove existing ones)</label>
             <input type="file" id="editProdFile" accept="image/*" multiple onchange="previewEditImages(event)">
             <div class="image-preview" id="editImagePreviewBox"></div>
           </div>
@@ -1400,8 +1422,34 @@
     };
 
     let appliedCoupon = null;
-    let selectedBase64Images = []; // Array to store multiple product images
-    let editBase64Images = [];     // Array for edited images
+    let selectedBase64Images = []; 
+    let editBase64Images = [];     
+
+    // Client-side image compressor to avoid exceeding Firestore limits
+    function compressImage(file, maxWidth = 800, quality = 0.75) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+        };
+      });
+    }
 
     function toggleMobileMenu() {
       const nav = document.getElementById('navbar');
@@ -1598,7 +1646,6 @@
         const currentPrice = selectedVariants[product.id] ? selectedVariants[product.id].price : (product.variants && product.variants[0] ? product.variants[0].price : 0);
         const isOutOfStock = product.isOutOfStock;
         
-        // Main thumbnail image logic (handles multiple images fallback)
         const mainImage = (product.images && product.images.length > 0) ? product.images[0] : (product.image || '');
 
         const productHTML = `
@@ -1631,7 +1678,6 @@
       });
     }
 
-    /* PRODUCT DETAIL MODAL FUNCTIONS (SCREENSHOT STYLE 2-COLUMN MULTI-IMAGE GRID) */
     function openProductDetailModal(productId) {
       const product = products.find(p => String(p.id) === String(productId));
       if (!product) return;
@@ -1639,7 +1685,6 @@
       document.getElementById('detailModalName').innerText = product.name;
       document.getElementById('detailModalCategory').innerText = (product.category || '').replace('-', ' ');
       
-      // Render 2-Column Images Grid
       const imageGrid = document.getElementById('detailModalImageGrid');
       imageGrid.innerHTML = '';
 
@@ -2025,8 +2070,8 @@
       container.appendChild(row);
     }
 
-    // MULTIPLE IMAGE PREVIEW (ADD PRODUCT)
-    function previewImages(event) {
+    // MULTIPLE IMAGE PREVIEW WITH AUTOMATIC COMPRESSION (ADD PRODUCT)
+    async function previewImages(event) {
       const files = Array.from(event.target.files);
       const previewBox = document.getElementById('imagePreviewBox');
       selectedBase64Images = [];
@@ -2038,41 +2083,75 @@
       }
 
       previewBox.className = "image-preview-grid";
-      previewBox.innerHTML = "";
+      previewBox.innerHTML = "<em>Optimizing images...</em>";
 
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          selectedBase64Images.push(e.target.result);
-          const img = document.createElement('img');
-          img.src = e.target.result;
-          previewBox.appendChild(img);
-        };
-        reader.readAsDataURL(file);
-      });
+      for (const file of files) {
+        const compressedBase64 = await compressImage(file);
+        selectedBase64Images.push(compressedBase64);
+      }
+
+      renderAddPreviewGrid();
     }
 
-    // MULTIPLE IMAGE PREVIEW (EDIT PRODUCT)
-    function previewEditImages(event) {
-      const files = Array.from(event.target.files);
-      const previewBox = document.getElementById('editImagePreviewBox');
-      editBase64Images = [];
-
-      if (files.length === 0) return;
-
+    function renderAddPreviewGrid() {
+      const previewBox = document.getElementById('imagePreviewBox');
       previewBox.className = "image-preview-grid";
       previewBox.innerHTML = "";
 
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          editBase64Images.push(e.target.result);
-          const img = document.createElement('img');
-          img.src = e.target.result;
-          previewBox.appendChild(img);
-        };
-        reader.readAsDataURL(file);
+      selectedBase64Images.forEach((imgSrc, idx) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = "preview-thumb-wrapper";
+        wrapper.innerHTML = `
+          <img src="${imgSrc}">
+          <div class="preview-thumb-remove" onclick="removeAddPhoto(${idx})"><i class="fa-solid fa-xmark"></i></div>
+        `;
+        previewBox.appendChild(wrapper);
       });
+    }
+
+    function removeAddPhoto(index) {
+      selectedBase64Images.splice(index, 1);
+      if (selectedBase64Images.length === 0) {
+        const previewBox = document.getElementById('imagePreviewBox');
+        previewBox.className = "image-preview";
+        previewBox.innerHTML = `<span>Photos Preview will appear here</span>`;
+      } else {
+        renderAddPreviewGrid();
+      }
+    }
+
+    // MULTIPLE IMAGE PREVIEW WITH COMPRESSION (EDIT PRODUCT)
+    async function previewEditImages(event) {
+      const files = Array.from(event.target.files);
+      if (files.length === 0) return;
+
+      for (const file of files) {
+        const compressedBase64 = await compressImage(file);
+        editBase64Images.push(compressedBase64);
+      }
+
+      renderEditPreviewGrid();
+    }
+
+    function renderEditPreviewGrid() {
+      const previewBox = document.getElementById('editImagePreviewBox');
+      previewBox.className = "image-preview-grid";
+      previewBox.innerHTML = "";
+
+      editBase64Images.forEach((imgSrc, idx) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = "preview-thumb-wrapper";
+        wrapper.innerHTML = `
+          <img src="${imgSrc}">
+          <div class="preview-thumb-remove" onclick="removeEditPhoto(${idx})"><i class="fa-solid fa-xmark"></i></div>
+        `;
+        previewBox.appendChild(wrapper);
+      });
+    }
+
+    function removeEditPhoto(index) {
+      editBase64Images.splice(index, 1);
+      renderEditPreviewGrid();
     }
 
     function handleNewProductSubmit(e) {
@@ -2112,7 +2191,7 @@
         description: desc,
         category: category,
         images: selectedBase64Images,
-        image: selectedBase64Images[0], // Primary image fallback
+        image: selectedBase64Images[0], 
         isOutOfStock: isOutOfStock,
         variants: variants
       };
@@ -2199,13 +2278,7 @@
       document.getElementById('editProdOutOfStock').checked = !!product.isOutOfStock;
       
       editBase64Images = (product.images && product.images.length > 0) ? [...product.images] : (product.image ? [product.image] : []);
-      
-      const previewBox = document.getElementById('editImagePreviewBox');
-      previewBox.className = "image-preview-grid";
-      previewBox.innerHTML = "";
-      editBase64Images.forEach(imgSrc => {
-        previewBox.innerHTML += `<img src="${imgSrc}" alt="Product Image">`;
-      });
+      renderEditPreviewGrid();
 
       document.getElementById('editProdFile').value = "";
 
@@ -2251,6 +2324,11 @@
 
       if (variants.length === 0) {
         alert("Please keep at least one valid size & price variant!");
+        return;
+      }
+
+      if (editBase64Images.length === 0) {
+        alert("Please add at least one image for the product!");
         return;
       }
 
@@ -2323,7 +2401,6 @@
       }
     }
 
-    // Fixed Menu Submit Logic syncing with Firestore Database
     function handleNewMenuSubmit(e) {
       e.preventDefault();
       const type = document.getElementById('menuTypeSelect').value;
@@ -2350,7 +2427,6 @@
         }
       }
 
-      // Save updated menu structure permanently to Firestore Database
       if (window.saveMenuToDatabase) {
         window.saveMenuToDatabase(menuData);
       }
@@ -2394,7 +2470,6 @@
       });
     }
 
-    // Fixed Menu Delete Logic syncing with Firestore Database
     function deleteMenu(id, type, parentId = null) {
       if (!confirm("Are you sure you want to delete this menu item?")) return;
 
@@ -2407,7 +2482,6 @@
         }
       }
 
-      // Save updated menu structure to Firestore Database after deletion
       if (window.saveMenuToDatabase) {
         window.saveMenuToDatabase(menuData);
       }
@@ -2449,7 +2523,6 @@
       if (docSnap.exists() && docSnap.data().menuData) {
         menuData = docSnap.data().menuData;
       } else {
-        // If document doesn't exist yet, save default structure
         setDoc(doc(window.db, "settings", "menu_config"), { menuData: defaultMenuData });
         menuData = defaultMenuData;
       }
