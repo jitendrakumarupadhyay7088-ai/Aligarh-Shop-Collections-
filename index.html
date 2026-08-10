@@ -940,6 +940,7 @@
       border: 1px solid #e2e8f0;
       border-radius: 8px;
       overflow: hidden;
+      position: relative;
     }
 
     .libas-grid-item img {
@@ -947,10 +948,11 @@
       height: 100%;
       object-fit: cover;
       transition: transform 0.3s ease;
+      cursor: zoom-in;
     }
 
     .libas-grid-item img:hover {
-      transform: scale(1.04);
+      transform: scale(1.05);
     }
 
     .product-detail-info {
@@ -980,6 +982,78 @@
       justify-content: center;
       gap: 8px;
       border-radius: 8px;
+    }
+
+    /* LIBAS-STYLE FULLSCREEN IMAGE ZOOM MODAL STYLING */
+    .zoom-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.92);
+      z-index: 4000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .zoom-overlay.open {
+      display: flex;
+    }
+
+    .zoom-container {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: auto;
+    }
+
+    .zoom-image {
+      max-width: 100%;
+      max-height: 85vh;
+      object-fit: contain;
+      border-radius: 8px;
+      transition: transform 0.3s ease;
+      cursor: zoom-in;
+    }
+
+    .zoom-image.is-zoomed {
+      transform: scale(1.8);
+      cursor: zoom-out;
+    }
+
+    .close-zoom-btn {
+      position: absolute;
+      top: 20px;
+      right: 25px;
+      color: #ffffff;
+      font-size: 32px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 4010;
+      transition: transform 0.2s;
+    }
+
+    .close-zoom-btn:hover {
+      transform: scale(1.2);
+    }
+
+    .zoom-tip {
+      position: absolute;
+      bottom: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      color: #ffffff;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      pointer-events: none;
     }
 
     footer {
@@ -1171,6 +1245,15 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- FULL-SCREEN LIBAS STYLE IMAGE ZOOM LIGHTBOX -->
+  <div class="zoom-overlay" id="zoomOverlay" onclick="closeZoomViewer(event)">
+    <button class="close-zoom-btn" onclick="closeZoomViewer(event)">&times;</button>
+    <div class="zoom-container">
+      <img src="" id="zoomedImage" class="zoom-image" alt="Product Zoom" onclick="toggleImageZoom(event)">
+    </div>
+    <div class="zoom-tip"><i class="fa-solid fa-magnifying-glass-plus"></i> Click image to toggle extra zoom</div>
   </div>
 
   <!-- SHOPPING CART POPUP -->
@@ -1752,7 +1835,7 @@
       });
     }
 
-    /* UPDATED: LIBAS 2-COLUMN PHOTO GRID MODAL FUNCTION */
+    /* UPDATED: LIBAS 2-COLUMN PHOTO GRID & CLICK-TO-ZOOM FUNCTION */
     function openProductDetailModal(productId) {
       const product = products.find(p => String(p.id) === String(productId));
       if (!product) return;
@@ -1768,7 +1851,7 @@
         imagesArray.forEach((imgSrc) => {
           const itemDiv = document.createElement('div');
           itemDiv.className = 'libas-grid-item';
-          itemDiv.innerHTML = `<img src="${imgSrc}" alt="${product.name}">`;
+          itemDiv.innerHTML = `<img src="${imgSrc}" alt="${product.name}" onclick="openZoomViewer('${imgSrc}')" title="Click to Expand & Zoom">`;
           gridContainer.appendChild(itemDiv);
         });
       } else {
@@ -1821,6 +1904,27 @@
       }
 
       document.getElementById('productDetailModalOverlay').classList.add('open');
+    }
+
+    /* FULL-SCREEN IMAGE ZOOM LIGHTBOX HANDLERS */
+    function openZoomViewer(imgSrc) {
+      const overlay = document.getElementById('zoomOverlay');
+      const img = document.getElementById('zoomedImage');
+      img.src = imgSrc;
+      img.classList.remove('is-zoomed');
+      overlay.classList.add('open');
+    }
+
+    function closeZoomViewer(e) {
+      if (e.target.classList.contains('zoom-overlay') || e.target.classList.contains('close-zoom-btn')) {
+        document.getElementById('zoomOverlay').classList.remove('open');
+      }
+    }
+
+    function toggleImageZoom(e) {
+      e.stopPropagation();
+      const img = document.getElementById('zoomedImage');
+      img.classList.toggle('is-zoomed');
     }
 
     function selectModalSize(productId, selectedSize, price, btnElement) {
