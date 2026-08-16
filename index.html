@@ -1415,8 +1415,8 @@
       <div class="admin-body">
         <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
           <div class="form-group">
-            <label><i class="fa-solid fa-user"></i> Admin ID</label>
-            <input type="text" id="adminLoginId" placeholder="Enter Admin ID" required>
+            <label><i class="fa-solid fa-envelope"></i> Admin Email</label>
+            <input type="email" id="adminLoginId" placeholder="Enter Admin Email" required>
           </div>
 
           <div class="form-group">
@@ -1425,7 +1425,7 @@
           </div>
 
           <div id="loginErrorMsg" style="color: #ef4444; font-size: 13px; font-weight: 600; margin-bottom: 12px; display: none; text-align: center;">
-            Incorrect Admin ID or Password!
+            Incorrect Admin Email or Password!
           </div>
 
           <button type="submit" class="submit-product-btn" style="background-color: #0f172a;">Login</button>
@@ -1630,10 +1630,6 @@
 
   <script>
     const YOUR_WHATSAPP_NUMBER = "917088484025"; 
-    
-    // Admin Credentials
-    const ADMIN_ID = "Jitendra"; 
-    const ADMIN_PASSWORD = "Jitendra@123"; 
 
     const AVAILABLE_COUPONS = {
       "FLAT10": { type: "flat", value: 10 },
@@ -1911,7 +1907,7 @@
       document.getElementById('detailModalCategory').innerText = (product.category || '').replace('-', ' ');
       
       const imagesArray = (product.images && product.images.length > 0) ? product.images : (product.image ? [product.image] : []);
-      currentGalleryImages = imagesArray; // Save images array for Lightbox navigation
+      currentGalleryImages = imagesArray;
       
       const gridContainer = document.getElementById('detailModalGrid');
       gridContainer.innerHTML = '';
@@ -1985,7 +1981,6 @@
       img.src = currentGalleryImages[currentGalleryIndex];
       img.classList.remove('is-zoomed');
       
-      // Update Arrow Buttons Visibility
       const prevBtn = document.querySelector('.zoom-prev-btn');
       const nextBtn = document.querySelector('.zoom-next-btn');
       if (currentGalleryImages.length > 1) {
@@ -1999,7 +1994,6 @@
       overlay.classList.add('open');
     }
 
-    // Left Arrow (<) [Previous] Functionality
     function prevZoomImage(e) {
       if (e) e.stopPropagation();
       if (!currentGalleryImages || currentGalleryImages.length <= 1) return;
@@ -2010,7 +2004,6 @@
       img.classList.remove('is-zoomed');
     }
 
-    // Right Arrow (>) [Next] Functionality
     function nextZoomImage(e) {
       if (e) e.stopPropagation();
       if (!currentGalleryImages || currentGalleryImages.length <= 1) return;
@@ -2021,7 +2014,6 @@
       img.classList.remove('is-zoomed');
     }
 
-    // Cross (✕) [Close] Functionality
     function closeZoomViewer(e) {
       if (e.target.classList.contains('zoom-overlay') || e.target.classList.contains('close-zoom-btn') || e.target.parentElement.classList.contains('close-zoom-btn')) {
         document.getElementById('zoomOverlay').classList.remove('open');
@@ -2034,7 +2026,6 @@
       img.classList.toggle('is-zoomed');
     }
 
-    // Keyboard Arrow Keys (Left & Right) & Escape Navigation Support
     document.addEventListener('keydown', function(e) {
       const overlay = document.getElementById('zoomOverlay');
       if (overlay && overlay.classList.contains('open')) {
@@ -2091,9 +2082,7 @@
       if (!product || product.isOutOfStock) return;
 
       const variant = selectedVariants[productId] || (product.variants ? product.variants[0] : { size: 'Free', price: 0 });
-
       const existingItem = cart.find(item => String(item.id) === String(productId) && item.size === variant.size);
-
       const mainImage = (product.images && product.images.length > 0) ? product.images[0] : (product.image || '');
 
       if (existingItem) {
@@ -2338,16 +2327,22 @@
       document.getElementById('adminLoginModalOverlay').classList.remove('open');
     }
 
-    function handleAdminLogin(e) {
+    // FIREBASE AUTHENTICATION HANDLER
+    async function handleAdminLogin(e) {
       e.preventDefault();
-      const idInput = document.getElementById('adminLoginId').value.trim();
+      const emailInput = document.getElementById('adminLoginId').value.trim();
       const passInput = document.getElementById('adminLoginPass').value.trim();
+      const errorMsg = document.getElementById('loginErrorMsg');
 
-      if (idInput === ADMIN_ID && passInput === ADMIN_PASSWORD) {
+      try {
+        await window.loginWithFirebase(emailInput, passInput);
+        errorMsg.style.display = 'none';
         closeAdminLoginModal();
         document.getElementById('adminModalOverlay').classList.add('open');
-      } else {
-        document.getElementById('loginErrorMsg').style.display = 'block';
+      } catch (error) {
+        console.error("Firebase Login Error:", error);
+        errorMsg.innerText = "Login Failed: " + error.message;
+        errorMsg.style.display = 'block';
       }
     }
 
@@ -2795,10 +2790,11 @@
     renderMenu();
   </script>
 
-  <!-- Firebase Firestore Integration -->
+  <!-- Firebase Firestore & Authentication Integration -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AizaSyC6EEk-7jh_1K2cWGuTXTQqzPTrGaya0LI",
@@ -2811,7 +2807,13 @@
 
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    
+    window.auth = getAuth(app);
+
+    // Firebase Authentication Login Function
+    window.loginWithFirebase = async function(email, password) {
+      return await signInWithEmailAndPassword(window.auth, email, password);
+    };
+
     // Live Realtime Products Firestore Sync
     onSnapshot(collection(window.db, "products"), (snapshot) => {
       let list = [];
