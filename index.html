@@ -735,11 +735,11 @@
       overflow-y: auto;
     }
 
-    .admin-tab-content {
+    .admin-tab-content, .policy-tab-content {
       display: none;
     }
 
-    .admin-tab-content.active {
+    .admin-tab-content.active, .policy-tab-content.active {
       display: block;
     }
 
@@ -1241,6 +1241,63 @@
     <div class="products-grid" id="productsGrid"></div>
   </div>
 
+  <!-- STORE POLICIES POPUP MODAL (NEWLY ADDED) -->
+  <div class="admin-modal-overlay" id="policyModalOverlay">
+    <div class="admin-modal" style="max-width: 650px;">
+      <div class="admin-header">
+        <h3><i class="fa-solid fa-file-contract"></i> Store Policies</h3>
+        <button class="close-cart-btn" onclick="closePolicyModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="admin-tabs">
+        <button class="admin-tab-btn active" onclick="switchPolicyTab('privacyPolicyTab', this)">
+          <i class="fa-solid fa-user-shield"></i> Privacy Policy
+        </button>
+        <button class="admin-tab-btn" onclick="switchPolicyTab('returnPolicyTab', this)">
+          <i class="fa-solid fa-rotate-left"></i> Return & Exchange
+        </button>
+        <button class="admin-tab-btn" onclick="switchPolicyTab('termsPolicyTab', this)">
+          <i class="fa-solid fa-scroll"></i> Terms & Conditions
+        </button>
+      </div>
+
+      <div class="admin-body">
+        <!-- TAB 1: PRIVACY POLICY -->
+        <div id="privacyPolicyTab" class="policy-tab-content active" style="font-size: 14px; line-height: 1.6; color: #475569;">
+          <h4 style="color: #0f172a; margin-bottom: 8px; font-weight: 700;">Privacy Policy</h4>
+          <p style="margin-bottom: 12px;">At <strong>Aligarh Shop Collection</strong>, we value your privacy and trust. We strictly collect only necessary delivery details such as Name, Contact Number, Address, and City to process your order smoothly via WhatsApp.</p>
+          <ul style="margin-left: 20px; margin-bottom: 12px;">
+            <li>Your personal details are never shared with third parties or sold to advertisers.</li>
+            <li>Payment details shared via Online UPI are strictly processed through standard banking apps.</li>
+            <li>We may use your contact details solely to provide updates regarding your current orders.</li>
+          </ul>
+        </div>
+
+        <!-- TAB 2: RETURN & REFUND POLICY -->
+        <div id="returnPolicyTab" class="policy-tab-content" style="font-size: 14px; line-height: 1.6; color: #475569;">
+          <h4 style="color: #0f172a; margin-bottom: 8px; font-weight: 700;">Return & Exchange Policy</h4>
+          <p style="margin-bottom: 12px;">We want you to be 100% satisfied with your purchase! Here is how our return & exchange process works:</p>
+          <ul style="margin-left: 20px; margin-bottom: 12px;">
+            <li><strong>7-Day Exchange Window:</strong> You can request an exchange or return within 7 days of receiving your package.</li>
+            <li><strong>Condition:</strong> Items must be unused, unwashed, and returned in their original packaging with original tags intact.</li>
+            <li><strong>Damaged / Incorrect Item:</strong> Please record a quick video while unboxing the parcel as proof and share it with our WhatsApp support team for instant replacements.</li>
+          </ul>
+        </div>
+
+        <!-- TAB 3: TERMS & CONDITIONS -->
+        <div id="termsPolicyTab" class="policy-tab-content" style="font-size: 14px; line-height: 1.6; color: #475569;">
+          <h4 style="color: #0f172a; margin-bottom: 8px; font-weight: 700;">Terms & Conditions</h4>
+          <p style="margin-bottom: 12px;">By accessing or placing an order on Aligarh Shop Collection, you agree to comply with the following terms:</p>
+          <ul style="margin-left: 20px; margin-bottom: 12px;">
+            <li>Product pricing, discounts, and stock availability are subject to change without prior notice.</li>
+            <li>Colors displayed on screens may slightly vary due to professional photoshoot lighting or display screens.</li>
+            <li>Cash on Delivery (COD) orders will be verified via WhatsApp confirmation before dispatch.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- PRODUCT DETAIL POPUP MODAL -->
   <div class="admin-modal-overlay" id="productDetailModalOverlay">
     <div class="admin-modal" style="max-width: 820px;">
@@ -1576,7 +1633,7 @@
           </table>
         </div>
 
-        <!-- TAB 4: MANAGE FOOTER (NEWLY ADDED) -->
+        <!-- TAB 4: MANAGE FOOTER -->
         <div id="footerManagerTab" class="admin-tab-content">
           <form id="footerForm" onsubmit="handleFooterSubmit(event)">
             <div class="form-group">
@@ -1779,7 +1836,39 @@
     let selectedVariants = {};
     let cart = [];
 
-    // RENDER DYNAMIC FOOTER
+    /* POLICY MODAL FUNCTIONS (NEWLY ADDED) */
+    function openPolicyModal(defaultTab = 'privacy') {
+      const overlay = document.getElementById('policyModalOverlay');
+      if (!overlay) return;
+      overlay.classList.add('open');
+
+      if (defaultTab === 'return') {
+        switchPolicyTab('returnPolicyTab', document.querySelectorAll('#policyModalOverlay .admin-tab-btn')[1]);
+      } else if (defaultTab === 'terms') {
+        switchPolicyTab('termsPolicyTab', document.querySelectorAll('#policyModalOverlay .admin-tab-btn')[2]);
+      } else {
+        switchPolicyTab('privacyPolicyTab', document.querySelectorAll('#policyModalOverlay .admin-tab-btn')[0]);
+      }
+    }
+
+    function closePolicyModal() {
+      const overlay = document.getElementById('policyModalOverlay');
+      if (overlay) overlay.classList.remove('open');
+    }
+
+    function switchPolicyTab(tabId, btnElement) {
+      const overlay = document.getElementById('policyModalOverlay');
+      if (!overlay) return;
+
+      overlay.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+      overlay.querySelectorAll('.policy-tab-content').forEach(c => c.classList.remove('active'));
+
+      if (btnElement) btnElement.classList.add('active');
+      const activeContent = document.getElementById(tabId);
+      if (activeContent) activeContent.classList.add('active');
+    }
+
+    // RENDER DYNAMIC FOOTER (UPDATED WITH POLICY LINKS)
     function renderFooter() {
       const footerElement = document.getElementById('mainFooter');
       if (!footerElement) return;
@@ -1798,6 +1887,15 @@
               <li><a href="#" onclick="handleCategoryClick('mans-collection')">Man's Collection</a></li>
               <li><a href="#" onclick="handleCategoryClick('womens-collection')">Women's Collection</a></li>
               <li><a href="#" onclick="handleCategoryClick('shoes')">Shoes & Footwear</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>Store Policies</h4>
+            <ul>
+              <li><a href="#" onclick="openPolicyModal('privacy')"><i class="fa-solid fa-user-shield"></i> Privacy Policy</a></li>
+              <li><a href="#" onclick="openPolicyModal('return')"><i class="fa-solid fa-rotate-left"></i> Return & Exchange</a></li>
+              <li><a href="#" onclick="openPolicyModal('terms')"><i class="fa-solid fa-scroll"></i> Terms & Conditions</a></li>
             </ul>
           </div>
 
@@ -1879,6 +1977,7 @@
       });
 
       navHTML += `
+        <li class="menu-item"><a href="#" onclick="openPolicyModal('privacy')"><i class="fa-solid fa-file-contract"></i> Policies</a></li>
         <li class="menu-item" style="margin-left: auto;">
           <a href="#" class="admin-btn-nav" onclick="openAdminLoginModal()"><i class="fa-solid fa-user-lock"></i> Admin Panel</a>
         </li>
@@ -2961,7 +3060,7 @@
       renderMenu();
     });
 
-    // Live Realtime Footer Config Firestore Sync (NEWLY ADDED)
+    // Live Realtime Footer Config Firestore Sync
     onSnapshot(doc(window.db, "settings", "footer_config"), (docSnap) => {
       if (docSnap.exists() && docSnap.data().footerData) {
         footerData = docSnap.data().footerData;
