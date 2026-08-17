@@ -1098,7 +1098,7 @@
       pointer-events: none;
     }
 
-    /* UPDATED MODERN FOOTER STYLING */
+    /* UPDATED MODERN FOOTER STYLING (SINGLE HORIZONTAL ROW) */
     footer {
       background-color: #0f172a;
       color: #94a3b8;
@@ -1109,7 +1109,7 @@
 
     .footer-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 30px;
       margin-bottom: 30px;
     }
@@ -1201,6 +1201,11 @@
       .zoom-next-btn { right: 10px; }
       .close-zoom-btn { top: 10px; right: 10px; width: 40px; height: 40px; font-size: 24px; }
       .form-row { flex-direction: column; gap: 0; }
+      
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
     }
   </style>
 </head>
@@ -1751,7 +1756,7 @@
       copyright: "© 2026 Aligarh Shop Collection. All rights reserved."
     };
 
-    var footerData = { ...defaultFooterData };
+    let footerData = { ...defaultFooterData };
 
     function compressImage(file, maxWidth = 800, quality = 0.75) {
       return new Promise((resolve) => {
@@ -1830,11 +1835,12 @@
       }
     ];
 
-    var menuData = defaultMenuData;
-    var products = [];
+    let menuData = defaultMenuData;
+    let products = [];
     let selectedVariants = {};
     let cart = [];
 
+    /* POLICY MODAL FUNCTIONS */
     function openPolicyModal(defaultTab = 'privacy') {
       const overlay = document.getElementById('policyModalOverlay');
       if (!overlay) return;
@@ -1866,6 +1872,7 @@
       if (activeContent) activeContent.classList.add('active');
     }
 
+    // RENDER FOOTER IN SINGLE HORIZONTAL LINE
     function renderFooter() {
       const footerElement = document.getElementById('mainFooter');
       if (!footerElement) return;
@@ -1888,7 +1895,7 @@
           </div>
 
           <div class="footer-col">
-            <h4>Store Policies</h4>
+            <h4>Store Policy</h4>
             <ul>
               <li><a href="#" onclick="openPolicyModal('privacy')"><i class="fa-solid fa-user-shield"></i> Privacy Policy</a></li>
               <li><a href="#" onclick="openPolicyModal('return')"><i class="fa-solid fa-rotate-left"></i> Return & Exchange</a></li>
@@ -1948,7 +1955,6 @@
 
     function renderMenu() {
       const navContainer = document.getElementById('mainMenuBar');
-      if (!navContainer) return;
       let navHTML = `<li class="menu-item"><a href="#" onclick="handleCategoryClick('all')">Home</a></li>`;
 
       menuData.forEach((mainMenu, index) => {
@@ -1975,7 +1981,6 @@
       });
 
       navHTML += `
-        <li class="menu-item"><a href="#" onclick="openPolicyModal('privacy')"><i class="fa-solid fa-file-contract"></i> Policies</a></li>
         <li class="menu-item" style="margin-left: auto;">
           <a href="#" class="admin-btn-nav" onclick="openAdminLoginModal()"><i class="fa-solid fa-user-lock"></i> Admin Panel</a>
         </li>
@@ -1999,10 +2004,8 @@
       }
       
       if (window.innerWidth <= 768 && (!subMenuId || categorySlug !== 'all')) {
-        const nav = document.getElementById('navbar');
-        if (nav) nav.classList.remove('active');
-        const icon = document.getElementById('menuIcon');
-        if (icon) icon.className = "fa-solid fa-bars";
+        document.getElementById('navbar').classList.remove('active');
+        document.getElementById('menuIcon').className = "fa-solid fa-bars";
       }
     }
 
@@ -2054,7 +2057,6 @@
 
     function renderProducts(productsToDisplay) {
       const grid = document.getElementById('productsGrid');
-      if (!grid) return;
       grid.innerHTML = '';
 
       if (productsToDisplay.length === 0) {
@@ -3012,10 +3014,8 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      renderMenu();
-      renderFooter();
-    });
+    renderMenu();
+    renderFooter();
   </script>
 
   <!-- Firebase Firestore & Authentication Integration -->
@@ -3047,7 +3047,6 @@
       snapshot.forEach((d) => {
         list.push({ ...d.data(), id: d.id });
       });
-      window.products = list;
       products = list;
       renderProducts(products);
       populateProductManagerUI();
@@ -3056,11 +3055,9 @@
     // Live Realtime Navigation Menu Firestore Sync
     onSnapshot(doc(window.db, "settings", "menu_config"), (docSnap) => {
       if (docSnap.exists() && docSnap.data().menuData) {
-        window.menuData = docSnap.data().menuData;
         menuData = docSnap.data().menuData;
       } else {
         setDoc(doc(window.db, "settings", "menu_config"), { menuData: defaultMenuData });
-        window.menuData = defaultMenuData;
         menuData = defaultMenuData;
       }
       renderMenu();
@@ -3069,11 +3066,9 @@
     // Live Realtime Footer Config Firestore Sync
     onSnapshot(doc(window.db, "settings", "footer_config"), (docSnap) => {
       if (docSnap.exists() && docSnap.data().footerData) {
-        window.footerData = docSnap.data().footerData;
         footerData = docSnap.data().footerData;
       } else {
         setDoc(doc(window.db, "settings", "footer_config"), { footerData: defaultFooterData });
-        window.footerData = defaultFooterData;
         footerData = defaultFooterData;
       }
       renderFooter();
