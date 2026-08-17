@@ -1246,7 +1246,7 @@
     <div class="products-grid" id="productsGrid"></div>
   </div>
 
-  <!-- STORE POLICIES POPUP MODAL (DYNAMICALLY FILLED FROM ADMIN) -->
+  <!-- STORE POLICIES POPUP MODAL -->
   <div class="admin-modal-overlay" id="policyModalOverlay">
     <div class="admin-modal" style="max-width: 650px;">
       <div class="admin-header">
@@ -1267,13 +1267,8 @@
       </div>
 
       <div class="admin-body">
-        <!-- TAB 1: PRIVACY POLICY -->
         <div id="privacyPolicyTab" class="policy-tab-content active" style="font-size: 14px; line-height: 1.6; color: #475569; white-space: pre-line;"></div>
-
-        <!-- TAB 2: RETURN & REFUND POLICY -->
         <div id="returnPolicyTab" class="policy-tab-content" style="font-size: 14px; line-height: 1.6; color: #475569; white-space: pre-line;"></div>
-
-        <!-- TAB 3: TERMS & CONDITIONS -->
         <div id="termsPolicyTab" class="policy-tab-content" style="font-size: 14px; line-height: 1.6; color: #475569; white-space: pre-line;"></div>
       </div>
     </div>
@@ -1723,28 +1718,25 @@
   </div>
 
   <!-- DYNAMIC FOOTER -->
-  <footer id="mainFooter">
-    <!-- Rendered via Javascript -->
-  </footer>
+  <footer id="mainFooter"></footer>
 
   <script>
-    const YOUR_WHATSAPP_NUMBER = "917088484025"; 
+    var YOUR_WHATSAPP_NUMBER = "917088484025"; 
 
-    const AVAILABLE_COUPONS = {
+    var AVAILABLE_COUPONS = {
       "FLAT10": { type: "flat", value: 10 },
       "OFF10": { type: "percent", value: 10 },
       "FLAT100": { type: "flat", value: 100 }
     };
 
-    let appliedCoupon = null;
-    let selectedBase64Images = []; 
-    let editBase64Images = [];     
+    var appliedCoupon = null;
+    var selectedBase64Images = []; 
+    var editBase64Images = [];     
 
-    let currentGalleryImages = [];
-    let currentGalleryIndex = 0;
+    var currentGalleryImages = [];
+    var currentGalleryIndex = 0;
 
-    // Default Footer Settings Fallback
-    const defaultFooterData = {
+    var defaultFooterData = {
       aboutText: "Welcome to Aligarh Shop Collection. Your destination for high-quality apparel, footwear, and traditional wear carefully curated for top comfort and style.",
       phone: "+91 7088484025",
       email: "support@aligarhshop.com",
@@ -1755,7 +1747,7 @@
       termsPolicy: "By accessing or placing an order on Aligarh Shop Collection, you agree to comply with our terms.\n\n• Product pricing and stock availability are subject to change without prior notice.\n• Colors displayed on screens may slightly vary due to photoshoot lighting."
     };
 
-    let footerData = { ...defaultFooterData };
+    var footerData = Object.assign({}, defaultFooterData);
 
     function compressImage(file, maxWidth = 800, quality = 0.75) {
       return new Promise((resolve) => {
@@ -1804,7 +1796,7 @@
       }
     }
 
-    const defaultMenuData = [
+    var defaultMenuData = [
       {
         id: "m1",
         title: "Man's Collection",
@@ -1834,10 +1826,10 @@
       }
     ];
 
-    let menuData = defaultMenuData;
-    let products = [];
-    let selectedVariants = {};
-    let cart = [];
+    window.menuData = defaultMenuData;
+    window.products = [];
+    var selectedVariants = {};
+    var cart = [];
 
     /* POLICY MODAL FUNCTIONS */
     function openPolicyModal(defaultTab = 'privacy') {
@@ -1889,7 +1881,6 @@
       if (activeContent) activeContent.classList.add('active');
     }
 
-    // RENDER FOOTER IN SINGLE HORIZONTAL LINE
     function renderFooter() {
       const footerElement = document.getElementById('mainFooter');
       if (!footerElement) return;
@@ -1981,7 +1972,7 @@
       const navContainer = document.getElementById('mainMenuBar');
       let navHTML = `<li class="menu-item"><a href="#" onclick="handleCategoryClick('all')">Home</a></li>`;
 
-      menuData.forEach((mainMenu, index) => {
+      (window.menuData || []).forEach((mainMenu, index) => {
         const hasSubmenu = mainMenu.submenus && mainMenu.submenus.length > 0;
         const subMenuId = `sub_menu_${index}`;
         
@@ -2037,16 +2028,16 @@
       let filtered = [];
       let displayTitle = "";
 
-      const mainMenu = menuData.find(m => m.category === categorySlug);
+      const mainMenu = (window.menuData || []).find(m => m.category === categorySlug);
 
       if (mainMenu) {
         displayTitle = mainMenu.title;
         const allowedCategories = (mainMenu.submenus || []).map(sub => sub.category);
         allowedCategories.push(mainMenu.category);
 
-        filtered = products.filter(p => allowedCategories.includes(p.category));
+        filtered = (window.products || []).filter(p => allowedCategories.includes(p.category));
       } else {
-        filtered = products.filter(p => p.category === categorySlug);
+        filtered = (window.products || []).filter(p => p.category === categorySlug);
         displayTitle = categorySlug.replace('-', ' ');
       }
 
@@ -2062,7 +2053,7 @@
       let optionsHTML = '';
       let parentOptionsHTML = '';
 
-      menuData.forEach(mainMenu => {
+      (window.menuData || []).forEach(mainMenu => {
         parentOptionsHTML += `<option value="${mainMenu.id}">${mainMenu.title}</option>`;
 
         if (mainMenu.submenus && mainMenu.submenus.length > 0) {
@@ -2083,7 +2074,7 @@
       const grid = document.getElementById('productsGrid');
       grid.innerHTML = '';
 
-      if (productsToDisplay.length === 0) {
+      if (!productsToDisplay || productsToDisplay.length === 0) {
         grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 40px; color:#64748b;">No products found in this category.</div>`;
         return;
       }
@@ -2147,7 +2138,7 @@
     }
 
     function openProductDetailModal(productId) {
-      const product = products.find(p => String(p.id) === String(productId));
+      const product = (window.products || []).find(p => String(p.id) === String(productId));
       if (!product) return;
 
       document.getElementById('detailModalName').innerText = product.name;
@@ -2261,7 +2252,7 @@
     }
 
     function closeZoomViewer(e) {
-      if (e.target.classList.contains('zoom-overlay') || e.target.classList.contains('close-zoom-btn') || e.target.parentElement.classList.contains('close-zoom-btn')) {
+      if (e.target.classList.contains('zoom-overlay') || e.target.classList.contains('close-zoom-btn') || (e.target.parentElement && e.target.parentElement.classList.contains('close-zoom-btn'))) {
         document.getElementById('zoomOverlay').classList.remove('open');
       }
     }
@@ -2324,7 +2315,7 @@
     }
 
     function addToCart(productId) {
-      const product = products.find(p => String(p.id) === String(productId));
+      const product = (window.products || []).find(p => String(p.id) === String(productId));
       if (!product || product.isOutOfStock) return;
 
       const variant = selectedVariants[productId] || (product.variants ? product.variants[0] : { size: 'Free', price: 0 });
@@ -2373,10 +2364,7 @@
       }
 
       if (AVAILABLE_COUPONS[code]) {
-        appliedCoupon = {
-          code: code,
-          ...AVAILABLE_COUPONS[code]
-        };
+        appliedCoupon = Object.assign({ code: code }, AVAILABLE_COUPONS[code]);
         input.disabled = true;
         btn.innerText = "Remove";
         btn.style.backgroundColor = "#ef4444";
@@ -2460,7 +2448,7 @@
         discountRow.style.display = "none";
       }
 
-      const grandTotal = Math.round(subtotal - discountAmount);
+      const grandTotal = Math.max(0, Math.round(subtotal - discountAmount));
       cartTotal.innerText = `₹${grandTotal.toLocaleString()}`;
     }
 
@@ -2529,7 +2517,7 @@
         if (discountAmount > subtotal) discountAmount = subtotal;
       }
 
-      const grandTotal = Math.round(subtotal - discountAmount);
+      const grandTotal = Math.max(0, Math.round(subtotal - discountAmount));
 
       message += `\n------------------------------\n`;
       message += `💵 *Subtotal:* ₹${subtotal.toLocaleString()}\n`;
@@ -2553,12 +2541,12 @@
     function resetFilter() {
       document.getElementById('categoryTitle').innerText = "All Collections";
       document.getElementById('searchInput').value = "";
-      renderProducts(products);
+      renderProducts(window.products);
     }
 
     function searchProducts() {
       const query = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = products.filter(p => 
+      const filtered = (window.products || []).filter(p => 
         p.name.toLowerCase().includes(query) || 
         (p.category && p.category.toLowerCase().includes(query))
       );
@@ -2767,12 +2755,12 @@
       
       tbody.innerHTML = '';
 
-      if (products.length === 0) {
+      if (!window.products || window.products.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">No products available.</td></tr>`;
         return;
       }
 
-      products.forEach(product => {
+      window.products.forEach(product => {
         const thumbImg = (product.images && product.images.length > 0) ? product.images[0] : (product.image || '');
 
         tbody.innerHTML += `
@@ -2796,12 +2784,12 @@
     }
 
     async function toggleStockStatus(productId, isChecked) {
-      const product = products.find(p => String(p.id) === String(productId));
+      const product = (window.products || []).find(p => String(p.id) === String(productId));
       if (product) {
         product.isOutOfStock = isChecked;
       }
 
-      renderProducts(products);
+      renderProducts(window.products);
       populateProductManagerUI();
 
       if (window.db) {
@@ -2816,7 +2804,7 @@
     }
 
     function openEditModal(productId) {
-      const product = products.find(p => String(p.id) === String(productId));
+      const product = (window.products || []).find(p => String(p.id) === String(productId));
       if (!product) {
         alert("Product not found!");
         return;
@@ -2883,15 +2871,15 @@
         return;
       }
 
-      const prodIndex = products.findIndex(p => String(p.id) === String(prodId));
+      const prodIndex = (window.products || []).findIndex(p => String(p.id) === String(prodId));
       if (prodIndex !== -1) {
-        products[prodIndex].name = name;
-        products[prodIndex].description = desc;
-        products[prodIndex].category = category;
-        products[prodIndex].images = editBase64Images;
-        products[prodIndex].image = editBase64Images[0] || '';
-        products[prodIndex].isOutOfStock = isOutOfStock;
-        products[prodIndex].variants = variants;
+        window.products[prodIndex].name = name;
+        window.products[prodIndex].description = desc;
+        window.products[prodIndex].category = category;
+        window.products[prodIndex].images = editBase64Images;
+        window.products[prodIndex].image = editBase64Images[0] || '';
+        window.products[prodIndex].isOutOfStock = isOutOfStock;
+        window.products[prodIndex].variants = variants;
 
         selectedVariants[prodId] = {
           size: variants[0].size,
@@ -2917,7 +2905,7 @@
         }
       }
 
-      renderProducts(products);
+      renderProducts(window.products);
       populateProductManagerUI();
       closeEditModal();
       alert("Product updated successfully!");
@@ -2925,7 +2913,7 @@
 
     async function deleteProduct(productId) {
       if (confirm("Are you sure you want to delete this product?")) {
-        products = products.filter(p => String(p.id) !== String(productId));
+        window.products = (window.products || []).filter(p => String(p.id) !== String(productId));
 
         if (window.db) {
           try {
@@ -2936,7 +2924,7 @@
           }
         }
 
-        renderProducts(products);
+        renderProducts(window.products);
         populateProductManagerUI();
         alert("Product deleted successfully!");
       }
@@ -2959,7 +2947,7 @@
       const category = document.getElementById('menuCategoryInput').value.trim().toLowerCase().replace(/\s+/g, '-');
 
       if (type === 'main') {
-        menuData.push({
+        window.menuData.push({
           id: 'm_' + Date.now(),
           title: title,
           category: category,
@@ -2967,7 +2955,7 @@
         });
       } else {
         const parentId = document.getElementById('parentMenuSelect').value;
-        const parentMenu = menuData.find(m => m.id === parentId);
+        const parentMenu = window.menuData.find(m => m.id === parentId);
         if (parentMenu) {
           if(!parentMenu.submenus) parentMenu.submenus = [];
           parentMenu.submenus.push({
@@ -2979,7 +2967,7 @@
       }
 
       if (window.saveMenuToDatabase) {
-        window.saveMenuToDatabase(menuData);
+        window.saveMenuToDatabase(window.menuData);
       }
 
       document.getElementById('addMenuForm').reset();
@@ -2992,7 +2980,7 @@
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      menuData.forEach(mainMenu => {
+      (window.menuData || []).forEach(mainMenu => {
         tbody.innerHTML += `
           <tr>
             <td><strong>Main Menu</strong></td>
@@ -3025,16 +3013,16 @@
       if (!confirm("Are you sure you want to delete this menu item?")) return;
 
       if (type === 'main') {
-        menuData = menuData.filter(m => m.id !== id);
+        window.menuData = window.menuData.filter(m => m.id !== id);
       } else if (type === 'sub' && parentId) {
-        const parent = menuData.find(m => m.id === parentId);
+        const parent = window.menuData.find(m => m.id === parentId);
         if (parent && parent.submenus) {
           parent.submenus = parent.submenus.filter(s => s.id !== id);
         }
       }
 
       if (window.saveMenuToDatabase) {
-        window.saveMenuToDatabase(menuData);
+        window.saveMenuToDatabase(window.menuData);
       }
     }
 
@@ -3072,18 +3060,18 @@
       snapshot.forEach((d) => {
         list.push({ ...d.data(), id: d.id });
       });
-      products = list;
-      renderProducts(products);
+      window.products = list;
+      renderProducts(window.products);
       populateProductManagerUI();
     });
 
     // Live Realtime Navigation Menu Firestore Sync
     onSnapshot(doc(window.db, "settings", "menu_config"), (docSnap) => {
       if (docSnap.exists() && docSnap.data().menuData) {
-        menuData = docSnap.data().menuData;
+        window.menuData = docSnap.data().menuData;
       } else {
         setDoc(doc(window.db, "settings", "menu_config"), { menuData: defaultMenuData });
-        menuData = defaultMenuData;
+        window.menuData = defaultMenuData;
       }
       renderMenu();
     });
