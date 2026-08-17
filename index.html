@@ -1241,7 +1241,7 @@
     <div class="products-grid" id="productsGrid"></div>
   </div>
 
-  <!-- STORE POLICIES POPUP MODAL (NEWLY ADDED) -->
+  <!-- STORE POLICIES POPUP MODAL -->
   <div class="admin-modal-overlay" id="policyModalOverlay">
     <div class="admin-modal" style="max-width: 650px;">
       <div class="admin-header">
@@ -1515,7 +1515,6 @@
         <button class="admin-tab-btn" onclick="switchAdminTab('menuManagerTab', this)">
           <i class="fa-solid fa-bars"></i> Manage Menu
         </button>
-        <!-- NEW TAB FOR MANAGING FOOTER -->
         <button class="admin-tab-btn" onclick="switchAdminTab('footerManagerTab', this)">
           <i class="fa-solid fa-shoe-prints"></i> Manage Footer
         </button>
@@ -1752,7 +1751,7 @@
       copyright: "© 2026 Aligarh Shop Collection. All rights reserved."
     };
 
-    let footerData = { ...defaultFooterData };
+    var footerData = { ...defaultFooterData };
 
     function compressImage(file, maxWidth = 800, quality = 0.75) {
       return new Promise((resolve) => {
@@ -1831,12 +1830,11 @@
       }
     ];
 
-    let menuData = defaultMenuData;
-    let products = [];
+    var menuData = defaultMenuData;
+    var products = [];
     let selectedVariants = {};
     let cart = [];
 
-    /* POLICY MODAL FUNCTIONS (NEWLY ADDED) */
     function openPolicyModal(defaultTab = 'privacy') {
       const overlay = document.getElementById('policyModalOverlay');
       if (!overlay) return;
@@ -1868,7 +1866,6 @@
       if (activeContent) activeContent.classList.add('active');
     }
 
-    // RENDER DYNAMIC FOOTER (UPDATED WITH POLICY LINKS)
     function renderFooter() {
       const footerElement = document.getElementById('mainFooter');
       if (!footerElement) return;
@@ -1951,6 +1948,7 @@
 
     function renderMenu() {
       const navContainer = document.getElementById('mainMenuBar');
+      if (!navContainer) return;
       let navHTML = `<li class="menu-item"><a href="#" onclick="handleCategoryClick('all')">Home</a></li>`;
 
       menuData.forEach((mainMenu, index) => {
@@ -2001,8 +1999,10 @@
       }
       
       if (window.innerWidth <= 768 && (!subMenuId || categorySlug !== 'all')) {
-        document.getElementById('navbar').classList.remove('active');
-        document.getElementById('menuIcon').className = "fa-solid fa-bars";
+        const nav = document.getElementById('navbar');
+        if (nav) nav.classList.remove('active');
+        const icon = document.getElementById('menuIcon');
+        if (icon) icon.className = "fa-solid fa-bars";
       }
     }
 
@@ -2054,6 +2054,7 @@
 
     function renderProducts(productsToDisplay) {
       const grid = document.getElementById('productsGrid');
+      if (!grid) return;
       grid.innerHTML = '';
 
       if (productsToDisplay.length === 0) {
@@ -3011,8 +3012,10 @@
       }
     }
 
-    renderMenu();
-    renderFooter();
+    document.addEventListener('DOMContentLoaded', () => {
+      renderMenu();
+      renderFooter();
+    });
   </script>
 
   <!-- Firebase Firestore & Authentication Integration -->
@@ -3044,6 +3047,7 @@
       snapshot.forEach((d) => {
         list.push({ ...d.data(), id: d.id });
       });
+      window.products = list;
       products = list;
       renderProducts(products);
       populateProductManagerUI();
@@ -3052,9 +3056,11 @@
     // Live Realtime Navigation Menu Firestore Sync
     onSnapshot(doc(window.db, "settings", "menu_config"), (docSnap) => {
       if (docSnap.exists() && docSnap.data().menuData) {
+        window.menuData = docSnap.data().menuData;
         menuData = docSnap.data().menuData;
       } else {
         setDoc(doc(window.db, "settings", "menu_config"), { menuData: defaultMenuData });
+        window.menuData = defaultMenuData;
         menuData = defaultMenuData;
       }
       renderMenu();
@@ -3063,9 +3069,11 @@
     // Live Realtime Footer Config Firestore Sync
     onSnapshot(doc(window.db, "settings", "footer_config"), (docSnap) => {
       if (docSnap.exists() && docSnap.data().footerData) {
+        window.footerData = docSnap.data().footerData;
         footerData = docSnap.data().footerData;
       } else {
         setDoc(doc(window.db, "settings", "footer_config"), { footerData: defaultFooterData });
+        window.footerData = defaultFooterData;
         footerData = defaultFooterData;
       }
       renderFooter();
