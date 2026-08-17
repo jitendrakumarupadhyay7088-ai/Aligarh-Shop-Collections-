@@ -1246,7 +1246,7 @@
     <div class="products-grid" id="productsGrid"></div>
   </div>
 
-  <!-- STORE POLICIES POPUP MODAL -->
+  <!-- STORE POLICIES POPUP MODAL (DYNAMICALLY FILLED FROM ADMIN) -->
   <div class="admin-modal-overlay" id="policyModalOverlay">
     <div class="admin-modal" style="max-width: 650px;">
       <div class="admin-header">
@@ -1268,37 +1268,13 @@
 
       <div class="admin-body">
         <!-- TAB 1: PRIVACY POLICY -->
-        <div id="privacyPolicyTab" class="policy-tab-content active" style="font-size: 14px; line-height: 1.6; color: #475569;">
-          <h4 style="color: #0f172a; margin-bottom: 8px; font-weight: 700;">Privacy Policy</h4>
-          <p style="margin-bottom: 12px;">At <strong>Aligarh Shop Collection</strong>, we value your privacy and trust. We strictly collect only necessary delivery details such as Name, Contact Number, Address, and City to process your order smoothly via WhatsApp.</p>
-          <ul style="margin-left: 20px; margin-bottom: 12px;">
-            <li>Your personal details are never shared with third parties or sold to advertisers.</li>
-            <li>Payment details shared via Online UPI are strictly processed through standard banking apps.</li>
-            <li>We may use your contact details solely to provide updates regarding your current orders.</li>
-          </ul>
-        </div>
+        <div id="privacyPolicyTab" class="policy-tab-content active" style="font-size: 14px; line-height: 1.6; color: #475569; white-space: pre-line;"></div>
 
         <!-- TAB 2: RETURN & REFUND POLICY -->
-        <div id="returnPolicyTab" class="policy-tab-content" style="font-size: 14px; line-height: 1.6; color: #475569;">
-          <h4 style="color: #0f172a; margin-bottom: 8px; font-weight: 700;">Return & Exchange Policy</h4>
-          <p style="margin-bottom: 12px;">We want you to be 100% satisfied with your purchase! Here is how our return & exchange process works:</p>
-          <ul style="margin-left: 20px; margin-bottom: 12px;">
-            <li><strong>7-Day Exchange Window:</strong> You can request an exchange or return within 7 days of receiving your package.</li>
-            <li><strong>Condition:</strong> Items must be unused, unwashed, and returned in their original packaging with original tags intact.</li>
-            <li><strong>Damaged / Incorrect Item:</strong> Please record a quick video while unboxing the parcel as proof and share it with our WhatsApp support team for instant replacements.</li>
-          </ul>
-        </div>
+        <div id="returnPolicyTab" class="policy-tab-content" style="font-size: 14px; line-height: 1.6; color: #475569; white-space: pre-line;"></div>
 
         <!-- TAB 3: TERMS & CONDITIONS -->
-        <div id="termsPolicyTab" class="policy-tab-content" style="font-size: 14px; line-height: 1.6; color: #475569;">
-          <h4 style="color: #0f172a; margin-bottom: 8px; font-weight: 700;">Terms & Conditions</h4>
-          <p style="margin-bottom: 12px;">By accessing or placing an order on Aligarh Shop Collection, you agree to comply with the following terms:</p>
-          <ul style="margin-left: 20px; margin-bottom: 12px;">
-            <li>Product pricing, discounts, and stock availability are subject to change without prior notice.</li>
-            <li>Colors displayed on screens may slightly vary due to professional photoshoot lighting or display screens.</li>
-            <li>Cash on Delivery (COD) orders will be verified via WhatsApp confirmation before dispatch.</li>
-          </ul>
-        </div>
+        <div id="termsPolicyTab" class="policy-tab-content" style="font-size: 14px; line-height: 1.6; color: #475569; white-space: pre-line;"></div>
       </div>
     </div>
   </div>
@@ -1637,9 +1613,11 @@
           </table>
         </div>
 
-        <!-- TAB 4: MANAGE FOOTER -->
+        <!-- TAB 4: MANAGE FOOTER & STORE POLICIES -->
         <div id="footerManagerTab" class="admin-tab-content">
           <form id="footerForm" onsubmit="handleFooterSubmit(event)">
+            <h4 style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 10px;">Footer Info</h4>
+            
             <div class="form-group">
               <label>About Shop / Description</label>
               <textarea id="footAbout" rows="3" placeholder="Short description about your shop..." required></textarea>
@@ -1667,7 +1645,25 @@
               <input type="text" id="footCopyright" placeholder="e.g. © 2026 Aligarh Shop Collection. All rights reserved." required>
             </div>
 
-            <button type="submit" class="submit-product-btn" style="background-color: #16a34a;">Save Footer Settings</button>
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
+            <h4 style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 10px;">Manage Store Policies</h4>
+
+            <div class="form-group">
+              <label>Privacy Policy</label>
+              <textarea id="footPrivacy" rows="4" placeholder="Enter Privacy Policy text..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Return & Exchange Policy</label>
+              <textarea id="footReturn" rows="4" placeholder="Enter Return & Exchange Policy text..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Terms & Conditions</label>
+              <textarea id="footTerms" rows="4" placeholder="Enter Terms & Conditions text..."></textarea>
+            </div>
+
+            <button type="submit" class="submit-product-btn" style="background-color: #16a34a;">Save Footer & Policies Settings</button>
           </form>
         </div>
 
@@ -1753,7 +1749,10 @@
       phone: "+91 7088484025",
       email: "support@aligarhshop.com",
       address: "Main Market, Aligarh, Uttar Pradesh, 202001",
-      copyright: "© 2026 Aligarh Shop Collection. All rights reserved."
+      copyright: "© 2026 Aligarh Shop Collection. All rights reserved.",
+      privacyPolicy: "At Aligarh Shop Collection, we value your privacy and trust. We strictly collect only necessary delivery details such as Name, Contact Number, Address, and City to process your order smoothly via WhatsApp.\n\n• Your personal details are never shared with third parties.\n• Payment details shared via Online UPI are strictly processed through standard banking apps.",
+      returnPolicy: "We want you to be 100% satisfied with your purchase!\n\n• 7-Day Exchange Window: You can request an exchange or return within 7 days of receiving your package.\n• Condition: Items must be unused and returned in original packaging.\n• Damaged / Incorrect Item: Record a quick unboxing video and share with us on WhatsApp.",
+      termsPolicy: "By accessing or placing an order on Aligarh Shop Collection, you agree to comply with our terms.\n\n• Product pricing and stock availability are subject to change without prior notice.\n• Colors displayed on screens may slightly vary due to photoshoot lighting."
     };
 
     let footerData = { ...defaultFooterData };
@@ -1844,6 +1843,8 @@
     function openPolicyModal(defaultTab = 'privacy') {
       const overlay = document.getElementById('policyModalOverlay');
       if (!overlay) return;
+      
+      renderPolicyContent();
       overlay.classList.add('open');
 
       if (defaultTab === 'return') {
@@ -1852,6 +1853,22 @@
         switchPolicyTab('termsPolicyTab', document.querySelectorAll('#policyModalOverlay .admin-tab-btn')[2]);
       } else {
         switchPolicyTab('privacyPolicyTab', document.querySelectorAll('#policyModalOverlay .admin-tab-btn')[0]);
+      }
+    }
+
+    function renderPolicyContent() {
+      const pTab = document.getElementById('privacyPolicyTab');
+      const rTab = document.getElementById('returnPolicyTab');
+      const tTab = document.getElementById('termsPolicyTab');
+
+      if (pTab) {
+        pTab.innerHTML = `<h4 style="color: #0f172a; margin-bottom: 8px; font-weight: 700;">Privacy Policy</h4><div>${footerData.privacyPolicy || defaultFooterData.privacyPolicy}</div>`;
+      }
+      if (rTab) {
+        rTab.innerHTML = `<h4 style="color: #0f172a; margin-bottom: 8px; font-weight: 700;">Return & Exchange Policy</h4><div>${footerData.returnPolicy || defaultFooterData.returnPolicy}</div>`;
+      }
+      if (tTab) {
+        tTab.innerHTML = `<h4 style="color: #0f172a; margin-bottom: 8px; font-weight: 700;">Terms & Conditions</h4><div>${footerData.termsPolicy || defaultFooterData.termsPolicy}</div>`;
       }
     }
 
@@ -1932,6 +1949,9 @@
       if (document.getElementById('footEmail')) document.getElementById('footEmail').value = footerData.email || '';
       if (document.getElementById('footAddress')) document.getElementById('footAddress').value = footerData.address || '';
       if (document.getElementById('footCopyright')) document.getElementById('footCopyright').value = footerData.copyright || '';
+      if (document.getElementById('footPrivacy')) document.getElementById('footPrivacy').value = footerData.privacyPolicy || '';
+      if (document.getElementById('footReturn')) document.getElementById('footReturn').value = footerData.returnPolicy || '';
+      if (document.getElementById('footTerms')) document.getElementById('footTerms').value = footerData.termsPolicy || '';
     }
 
     function handleFooterSubmit(e) {
@@ -1942,7 +1962,10 @@
         phone: document.getElementById('footPhone').value.trim(),
         email: document.getElementById('footEmail').value.trim(),
         address: document.getElementById('footAddress').value.trim(),
-        copyright: document.getElementById('footCopyright').value.trim()
+        copyright: document.getElementById('footCopyright').value.trim(),
+        privacyPolicy: document.getElementById('footPrivacy').value.trim(),
+        returnPolicy: document.getElementById('footReturn').value.trim(),
+        termsPolicy: document.getElementById('footTerms').value.trim()
       };
 
       if (window.saveFooterToDatabase) {
@@ -1950,7 +1973,8 @@
       }
 
       renderFooter();
-      alert("Footer settings updated successfully!");
+      renderPolicyContent();
+      alert("Footer settings and Store Policies updated successfully!");
     }
 
     function renderMenu() {
@@ -3016,6 +3040,7 @@
 
     renderMenu();
     renderFooter();
+    renderPolicyContent();
   </script>
 
   <!-- Firebase Firestore & Authentication Integration -->
@@ -3063,7 +3088,7 @@
       renderMenu();
     });
 
-    // Live Realtime Footer Config Firestore Sync
+    // Live Realtime Footer & Store Policies Firestore Sync
     onSnapshot(doc(window.db, "settings", "footer_config"), (docSnap) => {
       if (docSnap.exists() && docSnap.data().footerData) {
         footerData = docSnap.data().footerData;
@@ -3072,6 +3097,7 @@
         footerData = defaultFooterData;
       }
       renderFooter();
+      renderPolicyContent();
       populateFooterManagerUI();
     });
 
