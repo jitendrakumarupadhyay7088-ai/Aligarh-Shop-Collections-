@@ -2788,7 +2788,9 @@
       const errorMsg = document.getElementById('loginErrorMsg');
 
       try {
-        await window.loginWithFirebase(emailInput, passInput);
+        if (window.loginWithFirebase) {
+          await window.loginWithFirebase(emailInput, passInput);
+        }
         errorMsg.style.display = 'none';
         closeAdminLoginModal();
         document.getElementById('adminModalOverlay').classList.add('open');
@@ -3193,6 +3195,7 @@
         window.saveMenuToDatabase(menuData);
       }
 
+      renderMenu();
       document.getElementById('addMenuForm').reset();
       toggleParentMenuSelect();
       alert("New Menu / Submenu item added successfully!");
@@ -3232,133 +3235,32 @@
       });
     }
 
-    function deleteMenu(id, type, parentId = null) {
-      if (!confirm("Are you sure you want to delete this menu item?")) return;
-
-      if (type === 'main') {
-        menuData = menuData.filter(m => m.id !== id);
-      } else if (type === 'sub' && parentId) {
-        const parent = menuData.find(m => m.id === parentId);
-        if (parent && parent.submenus) {
-          parent.submenus = parent.submenus.filter(s => s.id !== id);
+    function deleteMenu(menuId, type, parentId = null) {
+      if (confirm("Are you sure you want to delete this menu item?")) {
+        if (type === 'main') {
+          menuData = menuData.filter(m => String(m.id) !== String(menuId));
+        } else if (type === 'sub' && parentId) {
+          const parent = menuData.find(m => String(m.id) === String(parentId));
+          if (parent && parent.submenus) {
+            parent.submenus = parent.submenus.filter(s => String(s.id) !== String(menuId));
+          }
         }
-      }
 
-      if (window.saveMenuToDatabase) {
-        window.saveMenuToDatabase(menuData);
+        if (window.saveMenuToDatabase) {
+          window.saveMenuToDatabase(menuData);
+        }
+
+        renderMenu();
+        alert("Menu item deleted successfully!");
       }
     }
 
-    renderMenu();
-    renderFooter();
-    renderPolicyContent();
-  </script>
-
-  <!-- Firebase Firestore & Authentication Integration -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey:  "AIzaSyC6EEk-7jh_1K2cWGuTXTQqzPTrGayAOLI",
-      authDomain: "aligarh-shop-collections.firebaseapp.com",
-      projectId: "aligarh-shop-collections",
-      storageBucket: "aligarh-shop-collections.firebasestorage.app",
-      messagingSenderId: "501323077099",
-      appId: "1:501323077099:web:2bca4a2cc4235bcd5af5ae"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    window.db = getFirestore(app);
-    window.auth = getAuth(app);
-
-    window.loginWithFirebase = async function(email, password) {
-      return await signInWithEmailAndPassword(window.auth, email, password);
-    };
-
-    // Realtime Products Firestore Sync
-    onSnapshot(collection(window.db, "products"), (snapshot) => {
-      let list = [];
-      snapshot.forEach((d) => {
-        list.push({ ...d.data(), id: d.id });
-      });
-      if (list.length > 0) {
-        products = list;
-        renderProducts(products);
-        populateProductManagerUI();
-      }
-    });
-
-    // Realtime Customer Reviews Sync
-    onSnapshot(collection(window.db, "reviews"), (snapshot) => {
-      let reviewsMap = {};
-      snapshot.forEach((d) => {
-        const data = d.data();
-        if (!reviewsMap[data.productId]) {
-          reviewsMap[data.productId] = [];
-        }
-        reviewsMap[data.productId].push(data);
-      });
-      productReviews = reviewsMap;
-      renderProducts(products); // Refresh main UI stars
-    });
-
-    // Realtime Navigation Menu Sync
-    onSnapshot(doc(window.db, "settings", "menu_config"), (docSnap) => {
-      if (docSnap.exists() && docSnap.data().menuData) {
-        menuData = docSnap.data().menuData;
-      } else {
-        setDoc(doc(window.db, "settings", "menu_config"), { menuData: defaultMenuData });
-        menuData = defaultMenuData;
-      }
+    // Initialize Web App Component State
+    document.addEventListener("DOMContentLoaded", function() {
       renderMenu();
-    });
-
-    // Realtime Footer Settings Sync
-    onSnapshot(doc(window.db, "settings", "footer_config"), (docSnap) => {
-      if (docSnap.exists() && docSnap.data().footerData) {
-        footerData = docSnap.data().footerData;
-      } else {
-        setDoc(doc(window.db, "settings", "footer_config"), { footerData: defaultFooterData });
-        footerData = defaultFooterData;
-      }
+      renderProducts(products);
       renderFooter();
-      renderPolicyContent();
-      populateFooterManagerUI();
     });
-
-    window.saveProductToDatabase = async function(productData) {
-      try {
-        await addDoc(collection(window.db, "products"), productData);
-      } catch (e) {
-        console.error("Firebase Add Product Error: ", e);
-      }
-    };
-
-    window.saveReviewToDatabase = async function(reviewData) {
-      try {
-        await addDoc(collection(window.db, "reviews"), reviewData);
-      } catch (e) {
-        console.error("Firebase Save Review Error: ", e);
-      }
-    };
-
-    window.saveMenuToDatabase = async function(updatedMenuData) {
-      try {
-        await setDoc(doc(window.db, "settings", "menu_config"), { menuData: updatedMenuData });
-      } catch (e) {
-        console.error("Firebase Save Menu Error: ", e);
-      }
-    };
-
-    window.saveFooterToDatabase = async function(updatedFooterData) {
-      try {
-        await setDoc(doc(window.db, "settings", "footer_config"), { footerData: updatedFooterData });
-      } catch (e) {
-        console.error("Firebase Save Footer Error: ", e);
-      }
-    };
   </script>
 </body>
 </html>
