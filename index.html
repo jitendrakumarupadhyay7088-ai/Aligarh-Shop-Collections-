@@ -2793,7 +2793,7 @@
         errorMsg.style.display = 'none';
         closeAdminLoginModal();
         document.getElementById('adminModalOverlay').classList.add('open');
-        populateReviewManagerUI(); // Ensure fresh review UI on login
+        populateReviewManagerUI();
       } catch (error) {
         console.error("Firebase Login Error:", error);
         errorMsg.innerText = "Login Failed: " + error.message;
@@ -2819,7 +2819,7 @@
       }
     }
 
-    /* FIXED & IMPROVED REVIEW MANAGER UI */
+    /* REVIEW MANAGER UI */
     function populateReviewManagerUI() {
       const tbody = document.getElementById('reviewsTableBody');
       if (!tbody) return;
@@ -2845,7 +2845,6 @@
             const comment = rev.comment || '';
             const docId = rev.docId || '';
 
-            // Escaping quotes for JS string inline passing
             const safeAuthor = author.replace(/'/g, "\\'");
             const safeComment = comment.replace(/'/g, "\\'");
 
@@ -2874,14 +2873,12 @@
     async function deleteAdminReview(docId, productId, author, comment) {
       if (!confirm("Are you sure you want to delete this review?")) return;
 
-      // Local state cleanup
       if (productReviews[productId]) {
         productReviews[productId] = productReviews[productId].filter(r => 
           !((r.author === author || r.userName === author) && r.comment === comment)
         );
       }
 
-      // Firestore deletion
       if (window.db) {
         try {
           const { collection, getDocs, query, where, deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
@@ -3352,7 +3349,9 @@
     if (typeof renderPolicyContent === 'function') renderPolicyContent();
   </script>
 
-  <!-- Firebase Firestore & Authentication Integration -->
+  <!-- ========================================== -->
+  <!-- FIREBASE INTEGRATION (MODULE)              -->
+  <!-- ========================================== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -3375,7 +3374,7 @@
       return await signInWithEmailAndPassword(window.auth, email, password);
     };
 
-    // Realtime Products Firestore Sync
+    // Realtime Products Sync
     onSnapshot(collection(window.db, "products"), (snapshot) => {
       let list = [];
       snapshot.forEach((d) => {
@@ -3388,12 +3387,12 @@
       }
     });
 
-    // Realtime Customer Reviews Sync with Normalized String Document IDs
+    // Realtime Reviews Sync
     onSnapshot(collection(window.db, "reviews"), (snapshot) => {
       let reviewsMap = {};
       snapshot.forEach((d) => {
         const data = d.data();
-        const pId = String(data.productId); // Product ID as String to avoid mismatch
+        const pId = String(data.productId);
         
         if (!reviewsMap[pId]) {
           reviewsMap[pId] = [];
@@ -3406,7 +3405,7 @@
       if (typeof populateReviewManagerUI === 'function') populateReviewManagerUI();
     });
 
-    // Realtime Navigation Menu Sync
+    // Realtime Navigation Sync
     onSnapshot(doc(window.db, "settings", "menu_config"), (docSnap) => {
       if (docSnap.exists() && docSnap.data().menuData) {
         menuData = docSnap.data().menuData;
@@ -3418,7 +3417,7 @@
       if (typeof populateMenuManagerUI === 'function') populateMenuManagerUI();
     });
 
-    // Realtime Footer Settings Sync
+    // Realtime Footer Sync
     onSnapshot(doc(window.db, "settings", "footer_config"), (docSnap) => {
       if (docSnap.exists() && docSnap.data().footerData) {
         footerData = docSnap.data().footerData;
@@ -3463,6 +3462,7 @@
       }
     };
   </script>
+
 </body>
 </html>
-   
+    
