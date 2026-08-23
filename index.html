@@ -2552,7 +2552,7 @@
       toggleCart();
     }
 
-    function applyCoupon() {
+   function applyCoupon() {
       const input = document.getElementById('couponInput');
       const msg = document.getElementById('couponMsg');
       const btn = document.getElementById('couponBtn');
@@ -2808,7 +2808,79 @@
 
       if (tabId === 'footerManagerTab') {
         populateFooterManagerUI();
+      } else if (tabId === 'reviewManagerTab') {
+        populateReviewManagerUI();
       }
+    }
+
+    function populateReviewManagerUI() {
+      const tbody = document.getElementById('reviewsTableBody');
+      if (!tbody) return;
+      
+      tbody.innerHTML = '';
+      let count = 0;
+
+      Object.keys(productReviews).forEach(productId => {
+        const prod = products.find(p => String(p.id) === String(productId));
+        const pName = prod ? prod.name : `ID: ${productId}`;
+
+        productReviews[productId].forEach(rev => {
+          count++;
+          tbody.innerHTML += `
+            <tr>
+              <td><strong>${pName}</strong></td>
+              <td>${rev.author || rev.userName || 'Anonymous'}</td>
+              <td><span style="color:#eab308; font-weight:bold;">★ ${rev.rating}</span></td>
+              <td><small>${rev.comment}</small></td>
+              <td>
+                <button class="delete-menu-btn" onclick="deleteAdminReview('${rev.docId || ''}', '${productId}', '${rev.author || rev.userName}', '${rev.comment}')">
+                  <i class="fa-solid fa-trash"></i> Delete
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+      });
+
+      if (count === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">No customer reviews found.</td></tr>`;
+      }
+    }
+
+    async function deleteAdminReview(docId, productId, author, comment) {
+      if (!confirm("Are you sure you want to delete this review?")) return;
+
+      if (productReviews[productId]) {
+        productReviews[productId] = productReviews[productId].filter(r => 
+          !((r.author === author || r.userName === author) && r.comment === comment)
+        );
+      }
+
+      if (window.db) {
+        try {
+          const { collection, getDocs, query, where, deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+          
+          if (docId) {
+            await deleteDoc(doc(window.db, "reviews", docId));
+          } else {
+            const q = query(
+              collection(window.db, "reviews"),
+              where("productId", "==", String(productId)),
+              where("comment", "==", comment)
+            );
+            const snapshot = await getDocs(q);
+            snapshot.forEach(async (d) => {
+              await deleteDoc(doc(window.db, "reviews", d.id));
+            });
+          }
+        } catch (err) {
+          console.error("Firestore Review Delete Error:", err);
+        }
+      }
+
+      renderProducts(products);
+      populateReviewManagerUI();
+      alert("Review deleted successfully!");
     }
 
     function closeAdminPanel() {
@@ -2953,7 +3025,6 @@
         variants: variants
       };
 
-      // Add product directly to local memory so it reflects instantly
       products.push(newProduct);
       renderProducts(products);
       populateProductManagerUI();
@@ -3290,7 +3361,7 @@
       }
     });
 
-    // Realtime Customer Reviews Sync
+    // Realtime Customer Reviews Sync with Document IDs
     onSnapshot(collection(window.db, "reviews"), (snapshot) => {
       let reviewsMap = {};
       snapshot.forEach((d) => {
@@ -3298,10 +3369,11 @@
         if (!reviewsMap[data.productId]) {
           reviewsMap[data.productId] = [];
         }
-        reviewsMap[data.productId].push(data);
+        reviewsMap[data.productId].push({ ...data, docId: d.id });
       });
       productReviews = reviewsMap;
-      renderProducts(products); // Refresh main UI stars
+      renderProducts(products);
+      populateReviewManagerUI();
     });
 
     // Realtime Navigation Menu Sync
@@ -3361,4 +3433,4 @@
     };
   </script>
 </body>
-</html>
+</html> 
