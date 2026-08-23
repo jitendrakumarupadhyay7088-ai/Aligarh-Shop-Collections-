@@ -2551,8 +2551,7 @@
       updateCartUI();
       toggleCart();
     }
-
-   function applyCoupon() {
+function applyCoupon() {
       const input = document.getElementById('couponInput');
       const msg = document.getElementById('couponMsg');
       const btn = document.getElementById('couponBtn');
@@ -2810,6 +2809,8 @@
         populateFooterManagerUI();
       } else if (tabId === 'reviewManagerTab') {
         populateReviewManagerUI();
+      } else if (tabId === 'manageMenuTab') {
+        populateMenuManagerUI();
       }
     }
 
@@ -3025,12 +3026,12 @@
         variants: variants
       };
 
-      products.push(newProduct);
-      renderProducts(products);
-      populateProductManagerUI();
-
       if (window.saveProductToDatabase) {
         await window.saveProductToDatabase(newProduct);
+      } else {
+        products.push(newProduct);
+        renderProducts(products);
+        populateProductManagerUI();
       }
 
       closeAdminPanel();
@@ -3266,6 +3267,7 @@
 
       document.getElementById('addMenuForm').reset();
       toggleParentMenuSelect();
+      populateMenuManagerUI();
       alert("New Menu / Submenu item added successfully!");
     }
 
@@ -3318,6 +3320,7 @@
       if (window.saveMenuToDatabase) {
         window.saveMenuToDatabase(menuData);
       }
+      populateMenuManagerUI();
     }
 
     renderMenu();
@@ -3385,6 +3388,7 @@
         menuData = defaultMenuData;
       }
       renderMenu();
+      populateMenuManagerUI();
     });
 
     // Realtime Footer Settings Sync
@@ -3402,7 +3406,7 @@
 
     window.saveProductToDatabase = async function(productData) {
       try {
-        await addDoc(collection(window.db, "products"), productData);
+        await setDoc(doc(window.db, "products", productData.id), productData);
       } catch (e) {
         console.error("Firebase Add Product Error: ", e);
       }
@@ -3433,4 +3437,5 @@
     };
   </script>
 </body>
-</html> 
+</html>
+   
