@@ -767,17 +767,19 @@
       display: flex;
       background-color: #f1f5f9;
       border-bottom: 1px solid #cbd5e1;
+      overflow-x: auto;
     }
 
     .admin-tab-btn {
       flex: 1;
-      padding: 12px 8px;
+      padding: 12px 10px;
       border: none;
       background: transparent;
       font-weight: 600;
       font-size: 13px;
       color: #64748b;
       cursor: pointer;
+      white-space: nowrap;
     }
 
     .admin-tab-btn.active {
@@ -1155,7 +1157,7 @@
       pointer-events: none;
     }
 
-    /* UPDATED MODERN FOOTER STYLING (SINGLE HORIZONTAL ROW) */
+    /* UPDATED MODERN FOOTER STYLING */
     footer {
       background-color: #0f172a;
       color: #94a3b8;
@@ -1303,7 +1305,7 @@
     <div class="products-grid" id="productsGrid"></div>
   </div>
 
-  <!-- STORE POLICIES POPUP MODAL (DYNAMICALLY FILLED FROM ADMIN) -->
+  <!-- STORE POLICIES POPUP MODAL -->
   <div class="admin-modal-overlay" id="policyModalOverlay">
     <div class="admin-modal" style="max-width: 650px;">
       <div class="admin-header">
@@ -1324,19 +1326,14 @@
       </div>
 
       <div class="admin-body">
-        <!-- TAB 1: PRIVACY POLICY -->
         <div id="privacyPolicyTab" class="policy-tab-content active" style="font-size: 14px; line-height: 1.6; color: #475569; white-space: pre-line;"></div>
-
-        <!-- TAB 2: RETURN & REFUND POLICY -->
         <div id="returnPolicyTab" class="policy-tab-content" style="font-size: 14px; line-height: 1.6; color: #475569; white-space: pre-line;"></div>
-
-        <!-- TAB 3: TERMS & CONDITIONS -->
         <div id="termsPolicyTab" class="policy-tab-content" style="font-size: 14px; line-height: 1.6; color: #475569; white-space: pre-line;"></div>
       </div>
     </div>
   </div>
 
-  <!-- PRODUCT DETAIL POPUP MODAL (WITH REVIEW & RATING FEATURE) -->
+  <!-- PRODUCT DETAIL POPUP MODAL -->
   <div class="admin-modal-overlay" id="productDetailModalOverlay">
     <div class="admin-modal" style="max-width: 820px;">
       <div class="admin-header">
@@ -1353,10 +1350,7 @@
             <span class="product-category" id="detailModalCategory">Category</span>
             <h3 class="product-title" id="detailModalName" style="font-size: 18px; margin-bottom: 6px; min-height: auto;">Product Name</h3>
             
-            <!-- Average Rating Header -->
-            <div class="rating-badge" id="detailModalRatingBadge">
-              <!-- Rendered via JS -->
-            </div>
+            <div class="rating-badge" id="detailModalRatingBadge"></div>
 
             <div class="product-price" id="detailModalPrice" style="font-size: 22px; margin-bottom: 10px;">₹0</div>
             
@@ -1377,7 +1371,6 @@
         <div class="reviews-section">
           <h4 style="font-size: 16px; color: #0f172a; margin-bottom: 12px;"><i class="fa-solid fa-comments"></i> Customer Reviews & Ratings</h4>
           
-          <!-- Submit Review Form -->
           <form id="reviewForm" onsubmit="handleReviewSubmit(event)" style="background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
             <input type="hidden" id="reviewProductId">
             <div class="form-group" style="margin-bottom: 8px;">
@@ -1404,7 +1397,6 @@
             <button type="submit" class="submit-product-btn" style="padding: 8px; font-size: 13px; background-color: #0284c7;">Submit Review</button>
           </form>
 
-          <!-- Reviews List -->
           <div id="reviewsList">
             <p style="font-size: 13px; color: #64748b;">Loading reviews...</p>
           </div>
@@ -1581,12 +1573,13 @@
 
   <!-- MAIN ADMIN PANEL MODAL -->
   <div class="admin-modal-overlay" id="adminModalOverlay">
-    <div class="admin-modal">
+    <div class="admin-modal" style="max-width: 750px;">
       <div class="admin-header">
         <h3><i class="fa-solid fa-sliders"></i> Admin Dashboard</h3>
         <button class="close-cart-btn" onclick="closeAdminPanel()"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
+      <!-- ADMIN TABS (Manage Reviews Added Here) -->
       <div class="admin-tabs">
         <button class="admin-tab-btn active" onclick="switchAdminTab('addProductTab', this)">
           <i class="fa-solid fa-plus-circle"></i> Add Product
@@ -1596,6 +1589,9 @@
         </button>
         <button class="admin-tab-btn" onclick="switchAdminTab('menuManagerTab', this)">
           <i class="fa-solid fa-bars"></i> Manage Menu
+        </button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('reviewManagerTab', this)">
+          <i class="fa-solid fa-comments"></i> Manage Reviews
         </button>
         <button class="admin-tab-btn" onclick="switchAdminTab('footerManagerTab', this)">
           <i class="fa-solid fa-shoe-prints"></i> Manage Footer
@@ -1630,7 +1626,7 @@
             </div>
 
             <div class="form-group">
-              <label><i class="fa-solid fa-images"></i> Select Product Photos (Multiple Photos Allowed - Front, Back, Zoom, Size Chart)</label>
+              <label><i class="fa-solid fa-images"></i> Select Product Photos (Multiple Photos Allowed)</label>
               <input type="file" id="newProdFile" accept="image/*" multiple onchange="previewImages(event)" required>
               <div class="image-preview" id="imagePreviewBox">
                 <span>Photos Preview will appear here</span>
@@ -1700,7 +1696,7 @@
 
           <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
 
-          <h4 style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 10px;">Current Menu Items (Delete)</h4>
+          <h4 style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 10px;">Current Menu Items</h4>
           <table class="menu-manager-table">
             <thead>
               <tr>
@@ -1714,7 +1710,30 @@
           </table>
         </div>
 
-        <!-- TAB 4: MANAGE FOOTER & STORE POLICIES -->
+        <!-- TAB 4: MANAGE REVIEWS (NEWLY ADDED) -->
+        <div id="reviewManagerTab" class="admin-tab-content">
+          <h4 style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 10px;">
+            <i class="fa-solid fa-comments"></i> All Customer Reviews & Ratings
+          </h4>
+          <table class="menu-manager-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Customer</th>
+                <th>Rating</th>
+                <th>Comment</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="reviewsTableBody">
+              <tr>
+                <td colspan="5" style="text-align:center; color:#64748b;">Loading reviews...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- TAB 5: MANAGE FOOTER & STORE POLICIES -->
         <div id="footerManagerTab" class="admin-tab-content">
           <form id="footerForm" onsubmit="handleFooterSubmit(event)">
             <h4 style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 10px;">Footer Info</h4>
@@ -1806,7 +1825,7 @@
           </div>
 
           <div class="form-group">
-            <label><i class="fa-solid fa-images"></i> Product Photos (Add more or remove existing ones)</label>
+            <label><i class="fa-solid fa-images"></i> Product Photos</label>
             <input type="file" id="editProdFile" accept="image/*" multiple onchange="previewEditImages(event)">
             <div class="image-preview" id="editImagePreviewBox"></div>
           </div>
@@ -1824,9 +1843,7 @@
   </div>
 
   <!-- DYNAMIC FOOTER -->
-  <footer id="mainFooter">
-    <!-- Rendered via Javascript -->
-  </footer>
+  <footer id="mainFooter"></footer>
 
   <script>
     const YOUR_WHATSAPP_NUMBER = "917088484025"; 
@@ -1844,11 +1861,9 @@
     let currentGalleryImages = [];
     let currentGalleryIndex = 0;
     
-    // Reviews State
-    let productReviews = {}; // { productId: [ { author, rating, comment, date } ] }
+    let productReviews = {};
     let selectedRating = 5;
 
-    // Default Footer Settings Fallback
     const defaultFooterData = {
       aboutText: "Welcome to Aligarh Shop Collection. Your destination for high-quality apparel, footwear, and traditional wear carefully curated for top comfort and style.",
       phone: "+91 7088484025",
@@ -1944,7 +1959,6 @@
     let selectedVariants = {};
     let cart = [];
 
-    /* POLICY MODAL FUNCTIONS */
     function openPolicyModal(defaultTab = 'privacy') {
       const overlay = document.getElementById('policyModalOverlay');
       if (!overlay) return;
@@ -1966,15 +1980,9 @@
       const rTab = document.getElementById('returnPolicyTab');
       const tTab = document.getElementById('termsPolicyTab');
 
-      if (pTab) {
-        pTab.innerHTML = `<h4 style="color: #0f172a; margin-bottom: 8px; font-weight: 700;">Privacy Policy</h4><div>${footerData.privacyPolicy || defaultFooterData.privacyPolicy}</div>`;
-      }
-      if (rTab) {
-        rTab.innerHTML = `<h4 style="color: #0f172a; margin-bottom: 8px; font-weight: 700;">Return & Exchange Policy</h4><div>${footerData.returnPolicy || defaultFooterData.returnPolicy}</div>`;
-      }
-      if (tTab) {
-        tTab.innerHTML = `<h4 style="color: #0f172a; margin-bottom: 8px; font-weight: 700;">Terms & Conditions</h4><div>${footerData.termsPolicy || defaultFooterData.termsPolicy}</div>`;
-      }
+      if (pTab) pTab.innerHTML = `<h4 style="color: #0f172a; margin-bottom: 8px; font-weight: 700;">Privacy Policy</h4><div>${footerData.privacyPolicy || defaultFooterData.privacyPolicy}</div>`;
+      if (rTab) rTab.innerHTML = `<h4 style="color: #0f172a; margin-bottom: 8px; font-weight: 700;">Return & Exchange Policy</h4><div>${footerData.returnPolicy || defaultFooterData.returnPolicy}</div>`;
+      if (tTab) tTab.innerHTML = `<h4 style="color: #0f172a; margin-bottom: 8px; font-weight: 700;">Terms & Conditions</h4><div>${footerData.termsPolicy || defaultFooterData.termsPolicy}</div>`;
     }
 
     function closePolicyModal() {
@@ -1994,7 +2002,6 @@
       if (activeContent) activeContent.classList.add('active');
     }
 
-    // RENDER FOOTER IN SINGLE HORIZONTAL LINE
     function renderFooter() {
       const footerElement = document.getElementById('mainFooter');
       if (!footerElement) return;
@@ -2184,7 +2191,6 @@
       if (parentMenuSelect) parentMenuSelect.innerHTML = parentOptionsHTML;
     }
 
-    // Helper to calculate rating
     function calculateAverageRating(productId) {
       const reviews = productReviews[productId] || [];
       if (reviews.length === 0) return { avg: 5.0, count: 0 };
@@ -2226,9 +2232,7 @@
 
         const currentPrice = selectedVariants[product.id] ? selectedVariants[product.id].price : (product.variants && product.variants[0] ? product.variants[0].price : 0);
         const isOutOfStock = product.isOutOfStock;
-        
         const mainImage = (product.images && product.images.length > 0) ? product.images[0] : (product.image || '');
-
         const ratingData = calculateAverageRating(product.id);
 
         const productHTML = `
@@ -2335,9 +2339,8 @@
         };
       }
 
-      // Render Rating & Reviews
       renderModalReviews(product.id);
-      setRating(5); // Reset star selector
+      setRating(5);
 
       document.getElementById('productDetailModalOverlay').classList.add('open');
     }
@@ -2411,7 +2414,7 @@
       productReviews[productId].unshift(newReview);
 
       renderModalReviews(productId);
-      renderProducts(products); // Refresh main view ratings
+      renderProducts(products);
 
       if (window.saveReviewToDatabase) {
         await window.saveReviewToDatabase(newReview);
@@ -2551,7 +2554,6 @@
       updateCartUI();
       toggleCart();
     }
-/* MAIN JAVASCRIPT LOGIC */
 
     function applyCoupon() {
       const input = document.getElementById('couponInput');
@@ -2812,7 +2814,7 @@
         populateFooterManagerUI();
       } else if (tabId === 'reviewManagerTab') {
         populateReviewManagerUI();
-      } else if (tabId === 'manageMenuTab') {
+      } else if (tabId === 'menuManagerTab') {
         populateMenuManagerUI();
       } else if (tabId === 'manageProductsTab') {
         populateProductManagerUI();
@@ -2828,7 +2830,7 @@
       let count = 0;
 
       if (!productReviews || Object.keys(productReviews).length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">No customer reviews found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b; padding: 20px;">No customer reviews found.</td></tr>`;
         return;
       }
 
@@ -2866,7 +2868,7 @@
       });
 
       if (count === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">No customer reviews found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b; padding: 20px;">No customer reviews found.</td></tr>`;
       }
     }
 
@@ -3349,9 +3351,7 @@
     if (typeof renderPolicyContent === 'function') renderPolicyContent();
   </script>
 
-  <!-- ========================================== -->
-  <!-- FIREBASE INTEGRATION (MODULE)              -->
-  <!-- ========================================== -->
+  <!-- FIREBASE INTEGRATION (MODULE) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -3465,4 +3465,3 @@
 
 </body>
 </html>
-    
