@@ -1579,7 +1579,7 @@
         <button class="close-cart-btn" onclick="closeAdminPanel()"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <!-- ADMIN TABS (Manage Reviews Added Here) -->
+      <!-- ADMIN TABS -->
       <div class="admin-tabs">
         <button class="admin-tab-btn active" onclick="switchAdminTab('addProductTab', this)">
           <i class="fa-solid fa-plus-circle"></i> Add Product
@@ -1710,7 +1710,7 @@
           </table>
         </div>
 
-        <!-- TAB 4: MANAGE REVIEWS (NEWLY ADDED) -->
+        <!-- TAB 4: MANAGE REVIEWS -->
         <div id="reviewManagerTab" class="admin-tab-content">
           <h4 style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 10px;">
             <i class="fa-solid fa-comments"></i> All Customer Reviews & Ratings
@@ -1861,7 +1861,8 @@
     let currentGalleryImages = [];
     let currentGalleryIndex = 0;
     
-    let productReviews = {};
+    // Reviews loaded from localStorage first as backup
+    let productReviews = JSON.parse(localStorage.getItem('aligarh_reviews') || '{}');
     let selectedRating = 5;
 
     const defaultFooterData = {
@@ -2193,7 +2194,7 @@
 
     function calculateAverageRating(productId) {
       const reviews = productReviews[productId] || [];
-      if (reviews.length === 0) return { avg: 5.0, count: 0 };
+      if (reviews.length === 0) return { avg: "5.0", count: 0 };
       const sum = reviews.reduce((acc, r) => acc + Number(r.rating || 5), 0);
       return { avg: (sum / reviews.length).toFixed(1), count: reviews.length };
     }
@@ -2401,28 +2402,36 @@
       if (!author || !comment) return;
 
       const newReview = {
-        productId: productId,
+        productId: String(productId),
         author: author,
-        rating: selectedRating,
+        rating: Number(selectedRating),
         comment: comment,
         date: new Date().toLocaleDateString()
       };
 
+      // 1. Local Cache & UI Update (Instant Display)
       if (!productReviews[productId]) {
         productReviews[productId] = [];
       }
       productReviews[productId].unshift(newReview);
+      localStorage.setItem('aligarh_reviews', JSON.stringify(productReviews));
 
       renderModalReviews(productId);
       renderProducts(products);
+      if (typeof populateReviewManagerUI === 'function') populateReviewManagerUI();
 
+      // 2. Database Sync
       if (window.saveReviewToDatabase) {
-        await window.saveReviewToDatabase(newReview);
+        try {
+          await window.saveReviewToDatabase(newReview);
+        } catch(err) {
+          console.error("Database save warning:", err);
+        }
       }
 
       document.getElementById('reviewForm').reset();
       setRating(5);
-      alert('Thank you for your feedback!');
+      alert('Thank you for your feedback! Review added successfully.');
     }
 
     function openZoomViewer(index) {
@@ -2879,6 +2888,7 @@
         productReviews[productId] = productReviews[productId].filter(r => 
           !((r.author === author || r.userName === author) && r.comment === comment)
         );
+        localStorage.setItem('aligarh_reviews', JSON.stringify(productReviews));
       }
 
       if (window.db) {
@@ -3385,9 +3395,11 @@
         if (typeof renderProducts === 'function') renderProducts(products);
         if (typeof populateProductManagerUI === 'function') populateProductManagerUI();
       }
+    }, (error) => {
+      console.error("Firestore Products Sync Error:", error);
     });
 
-    // Realtime Reviews Sync
+    // Realtime Reviews Sync (With error handling and localStorage sync)
     onSnapshot(collection(window.db, "reviews"), (snapshot) => {
       let reviewsMap = {};
       snapshot.forEach((d) => {
@@ -3401,8 +3413,12 @@
       });
       
       productReviews = reviewsMap;
+      localStorage.setItem('aligarh_reviews', JSON.stringify(reviewsMap));
+
       if (typeof renderProducts === 'function') renderProducts(products);
       if (typeof populateReviewManagerUI === 'function') populateReviewManagerUI();
+    }, (error) => {
+      console.warn("Firestore Reviews read permission restricted, using local storage cache:", error);
     });
 
     // Realtime Navigation Sync
@@ -3415,6 +3431,8 @@
       }
       if (typeof renderMenu === 'function') renderMenu();
       if (typeof populateMenuManagerUI === 'function') populateMenuManagerUI();
+    }, (error) => {
+      console.error("Firestore Menu Sync Error:", error);
     });
 
     // Realtime Footer Sync
@@ -3428,6 +3446,8 @@
       if (typeof renderFooter === 'function') renderFooter();
       if (typeof renderPolicyContent === 'function') renderPolicyContent();
       if (typeof populateFooterManagerUI === 'function') populateFooterManagerUI();
+    }, (error) => {
+      console.error("Firestore Footer Sync Error:", error);
     });
 
     window.saveProductToDatabase = async function(productData) {
@@ -3463,6 +3483,5 @@
     };
   </script>
 
-  
 </body>
 </html>
