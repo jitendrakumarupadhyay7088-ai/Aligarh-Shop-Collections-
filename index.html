@@ -317,7 +317,6 @@
       z-index: 5;
     }
 
-    /* Floating rating tag on image */
     .card-floating-rating {
       position: absolute;
       bottom: 10px;
@@ -346,7 +345,6 @@
       font-size: 10px;
     }
 
-    /* Wishlist heart button */
     .card-wishlist-btn {
       position: absolute;
       top: 10px;
@@ -743,7 +741,7 @@
       border-color: #0284c7;
     }
 
-    /* UPDATED: SKY BLUE ADD TO CART BUTTON (Matching theme & review submit button) */
+    /* SKY BLUE ADD TO CART BUTTON */
     #detailModalCartBtn {
       width: 100%;
       height: 48px;
@@ -777,7 +775,7 @@
       transform: none;
     }
 
-    /* UPDATED: DELIVERY & QUALITY PERKS BOX */
+    /* DELIVERY & QUALITY PERKS BOX */
     .delivery-perks-box {
       margin-top: 20px;
       padding: 14px 16px;
@@ -1174,12 +1172,12 @@
             <div class="detail-section-label">Select Size:</div>
             <div class="size-options" id="detailModalSizes"></div>
 
-            <!-- UPDATED: Sky Blue Add to Cart Button -->
+            <!-- Sky Blue Add to Cart Button -->
             <button id="detailModalCartBtn" onclick="executeAddToCart()">
               <i class="fa-solid fa-cart-plus"></i> ADD TO CART
             </button>
 
-            <!-- UPDATED: New Attractive & Unique Store Perks -->
+            <!-- Store Perks -->
             <div class="delivery-perks-box">
               <div><i class="fa-solid fa-circle-check"></i> 100% Genuine & Premium Fabric Guaranteed</div>
               <div><i class="fa-solid fa-box-open"></i> Safe & Fast Doorstep Delivery</div>
@@ -1777,6 +1775,18 @@
       `;
     }
 
+    // Populate the Manage Footer Admin Tab with current saved data
+    function populateFooterManagerUI() {
+      if (document.getElementById('footAbout')) document.getElementById('footAbout').value = footerData.aboutText || '';
+      if (document.getElementById('footPhone')) document.getElementById('footPhone').value = footerData.phone || '';
+      if (document.getElementById('footEmail')) document.getElementById('footEmail').value = footerData.email || '';
+      if (document.getElementById('footAddress')) document.getElementById('footAddress').value = footerData.address || '';
+      if (document.getElementById('footCopyright')) document.getElementById('footCopyright').value = footerData.copyright || '';
+      if (document.getElementById('footPrivacy')) document.getElementById('footPrivacy').value = footerData.privacyPolicy || '';
+      if (document.getElementById('footReturn')) document.getElementById('footReturn').value = footerData.returnPolicy || '';
+      if (document.getElementById('footTerms')) document.getElementById('footTerms').value = footerData.termsPolicy || '';
+    }
+
     function renderMenu() {
       const navContainer = document.getElementById('mainMenuBar');
       let navHTML = `<li class="menu-item"><a href="#" onclick="handleCategoryClick('all')">Home</a></li>`;
@@ -2342,6 +2352,7 @@
       document.getElementById(tabId).classList.add('active');
       if (tabId === 'reviewManagerTab') populateReviewManagerUI();
       if (tabId === 'manageProductsTab') populateProductManagerUI();
+      if (tabId === 'footerManagerTab') populateFooterManagerUI(); // Fixed: Populates data
     }
 
     function closeAdminPanel() {
@@ -2419,6 +2430,7 @@
       });
     }
 
+    // FIXED: Double Product Add Bug Fixed Here
     async function handleNewProductSubmit(e) {
       e.preventDefault();
       const name = document.getElementById('newProdName').value;
@@ -2450,12 +2462,22 @@
         variants
       };
 
-      if (window.saveProductToDatabase) await window.saveProductToDatabase(newProduct);
-      products.push(newProduct);
-      renderProducts(products);
-      populateProductManagerUI();
+      // Sirf Database me save karein, onSnapshot isse automatically screen par add kar dega
+      if (window.saveProductToDatabase) {
+        await window.saveProductToDatabase(newProduct);
+      } else {
+        products.push(newProduct);
+        renderProducts(products);
+        populateProductManagerUI();
+      }
+
       closeAdminPanel();
       alert("Product added successfully!");
+
+      document.getElementById('addProductForm').reset();
+      selectedBase64Images = [];
+      document.getElementById('imagePreviewBox').className = "image-preview";
+      document.getElementById('imagePreviewBox').innerHTML = `<span>Photos Preview will appear here</span>`;
     }
 
     function populateProductManagerUI() {
@@ -2633,6 +2655,7 @@
       populateReviewManagerUI();
     }
 
+    // FIXED: Save Footer & Policies to Firebase and UI smoothly
     function handleFooterSubmit(e) {
       e.preventDefault();
       footerData = {
@@ -2645,9 +2668,12 @@
         returnPolicy: document.getElementById('footReturn').value.trim(),
         termsPolicy: document.getElementById('footTerms').value.trim()
       };
-      if (window.saveFooterToDatabase) window.saveFooterToDatabase(footerData);
+      if (window.saveFooterToDatabase) {
+        window.saveFooterToDatabase(footerData);
+      }
       renderFooter();
-      alert("Footer updated!");
+      renderPolicyContent();
+      alert("Footer & Policies settings updated successfully!");
     }
 
     // Initial renders
@@ -2678,6 +2704,7 @@
       return await signInWithEmailAndPassword(window.auth, email, password);
     };
 
+    // Realtime Products Sync
     onSnapshot(collection(window.db, "products"), (snapshot) => {
       let list = [];
       snapshot.forEach(d => list.push({ ...d.data(), id: d.id }));
@@ -2688,6 +2715,7 @@
       }
     });
 
+    // Realtime Reviews Sync
     onSnapshot(collection(window.db, "reviews"), (snapshot) => {
       let reviewsMap = {};
       snapshot.forEach(d => {
@@ -2702,6 +2730,7 @@
       populateReviewManagerUI();
     });
 
+    // Realtime Menu Navigation Sync
     onSnapshot(doc(window.db, "settings", "menu_config"), (docSnap) => {
       if (docSnap.exists() && docSnap.data().menuData) {
         menuData = docSnap.data().menuData;
@@ -2709,11 +2738,17 @@
       }
     });
 
+    // Realtime Footer & Policies Sync
     onSnapshot(doc(window.db, "settings", "footer_config"), (docSnap) => {
       if (docSnap.exists() && docSnap.data().footerData) {
         footerData = docSnap.data().footerData;
-        renderFooter();
+      } else {
+        setDoc(doc(window.db, "settings", "footer_config"), { footerData: defaultFooterData });
+        footerData = defaultFooterData;
       }
+      renderFooter();
+      renderPolicyContent();
+      populateFooterManagerUI(); // Database se load hote hi form me data autofill hoga
     });
 
     window.saveProductToDatabase = async (p) => await setDoc(doc(window.db, "products", String(p.id)), p);
