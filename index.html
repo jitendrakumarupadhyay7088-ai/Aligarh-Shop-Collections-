@@ -600,6 +600,7 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
+      transition: background 0.2s;
     }
 
     .whatsapp-btn:hover {
@@ -901,6 +902,11 @@
       border-radius: 6px;
       font-size: 14px;
       outline: none;
+      background-color: #ffffff;
+    }
+
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: #0284c7;
     }
 
     .form-row { display: flex; gap: 12px; }
@@ -1273,7 +1279,7 @@
     </div>
   </div>
 
-  <!-- CUSTOMER DETAILS MODAL -->
+  <!-- CUSTOMER DETAILS MODAL (Updated with State & City layout as in Screenshot 1) -->
   <div class="admin-modal-overlay" id="customerModalOverlay">
     <div class="admin-modal" style="max-width: 440px;">
       <div class="admin-header">
@@ -1288,24 +1294,65 @@
           </div>
 
           <div class="form-group">
-            <label>Mobile Number *</label>
+            <label>Mobile / WhatsApp Number *</label>
             <input type="tel" id="custPhone" pattern="[0-9]{10}" placeholder="10 Digit Phone Number" required>
           </div>
 
           <div class="form-group">
-            <label>Address *</label>
-            <textarea id="custAddress" rows="3" placeholder="House No, Street, Landmark" required></textarea>
+            <label>Delivery Address *</label>
+            <textarea id="custAddress" rows="3" placeholder="House No, Street, Landmark, Area" required></textarea>
           </div>
 
+          <!-- State & City in Single Row -->
           <div class="form-row">
             <div class="form-group">
-              <label>City *</label>
-              <input type="text" id="custCity" placeholder="City (e.g. Aligarh)" required>
+              <label>State *</label>
+              <select id="custState" required>
+                <option value="" disabled selected>Select State</option>
+                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                <option value="Assam">Assam</option>
+                <option value="Bihar">Bihar</option>
+                <option value="Chhattisgarh">Chhattisgarh</option>
+                <option value="Goa">Goa</option>
+                <option value="Gujarat">Gujarat</option>
+                <option value="Haryana">Haryana</option>
+                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                <option value="Jharkhand">Jharkhand</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="Kerala">Kerala</option>
+                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Manipur">Manipur</option>
+                <option value="Meghalaya">Meghalaya</option>
+                <option value="Mizoram">Mizoram</option>
+                <option value="Nagaland">Nagaland</option>
+                <option value="Odisha">Odisha</option>
+                <option value="Punjab">Punjab</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="Sikkim">Sikkim</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+                <option value="Telangana">Telangana</option>
+                <option value="Tripura">Tripura</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Uttarakhand">Uttarakhand</option>
+                <option value="West Bengal">West Bengal</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                <option value="Ladakh">Ladakh</option>
+                <option value="Chandigarh">Chandigarh</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
             <div class="form-group">
-              <label>PIN Code *</label>
-              <input type="text" id="custPincode" pattern="[0-9]{6}" placeholder="6 Digit PIN" required>
+              <label>City *</label>
+              <input type="text" id="custCity" placeholder="Enter City (e.g. Aligarh)" required>
             </div>
+          </div>
+
+          <div class="form-group">
+            <label>PIN Code *</label>
+            <input type="text" id="custPincode" pattern="[0-9]{6}" placeholder="6 Digit PIN Code" required>
           </div>
 
           <div class="form-group">
@@ -1317,7 +1364,7 @@
           </div>
 
           <button type="submit" class="whatsapp-btn" style="margin-top: 15px;">
-            <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> Confirm WhatsApp Order
+            <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> Confirm & Send Order
           </button>
         </form>
       </div>
@@ -1738,6 +1785,7 @@
       document.getElementById(tabId).classList.add('active');
     }
 
+    /* RESTORED: Quick Links with 'Shoes & Footwear' included */
     function renderFooter() {
       const footerElement = document.getElementById('mainFooter');
       if (!footerElement) return;
@@ -1754,6 +1802,7 @@
               <li><a href="#" onclick="resetFilter();">Home</a></li>
               <li><a href="#" onclick="handleCategoryClick('mans-collection')">Man's Collection</a></li>
               <li><a href="#" onclick="handleCategoryClick('womens-collection')">Women's Collection</a></li>
+              <li><a href="#" onclick="handleCategoryClick('shoes')">Shoes & Footwear</a></li>
             </ul>
           </div>
           <div class="footer-col">
@@ -1775,7 +1824,6 @@
       `;
     }
 
-    // Populate the Manage Footer Admin Tab with current saved data
     function populateFooterManagerUI() {
       if (document.getElementById('footAbout')) document.getElementById('footAbout').value = footerData.aboutText || '';
       if (document.getElementById('footPhone')) document.getElementById('footPhone').value = footerData.phone || '';
@@ -1894,7 +1942,7 @@
       grid.innerHTML = '';
 
       if (productsToDisplay.length === 0) {
-        grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 40px; color:#64748b;">No products found.</div>`;
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 40px; color:#64748b;">No products found in this category.</div>`;
         return;
       }
 
@@ -2273,16 +2321,18 @@
       document.getElementById('customerModalOverlay').classList.remove('open');
     }
 
+    /* UPDATED: Captures State & formats WhatsApp message cleanly */
     function sendWhatsAppOrder(event) {
       event.preventDefault();
       const name = document.getElementById('custName').value.trim();
       const phone = document.getElementById('custPhone').value.trim();
       const address = document.getElementById('custAddress').value.trim();
+      const state = document.getElementById('custState').value;
       const city = document.getElementById('custCity').value.trim();
       const pincode = document.getElementById('custPincode').value.trim();
       const payment = document.getElementById('custPayment').value;
 
-      let message = `🛒 *NEW ORDER*\n\n👤 *Customer:*\n• Name: ${name}\n• Phone: ${phone}\n• Address: ${address}, ${city} - ${pincode}\n• Payment: ${payment}\n\n📦 *Items:*\n`;
+      let message = `🛒 *NEW ORDER*\n\n👤 *Customer:*\n• Name: ${name}\n• Phone: ${phone}\n• Address: ${address}\n• State: ${state}\n• City: ${city} - ${pincode}\n• Payment: ${payment}\n\n📦 *Items:*\n`;
       let subtotal = 0;
 
       cart.forEach((item, index) => {
@@ -2352,7 +2402,7 @@
       document.getElementById(tabId).classList.add('active');
       if (tabId === 'reviewManagerTab') populateReviewManagerUI();
       if (tabId === 'manageProductsTab') populateProductManagerUI();
-      if (tabId === 'footerManagerTab') populateFooterManagerUI(); // Fixed: Populates data
+      if (tabId === 'footerManagerTab') populateFooterManagerUI();
     }
 
     function closeAdminPanel() {
@@ -2430,7 +2480,6 @@
       });
     }
 
-    // FIXED: Double Product Add Bug Fixed Here
     async function handleNewProductSubmit(e) {
       e.preventDefault();
       const name = document.getElementById('newProdName').value;
@@ -2462,7 +2511,6 @@
         variants
       };
 
-      // Sirf Database me save karein, onSnapshot isse automatically screen par add kar dega
       if (window.saveProductToDatabase) {
         await window.saveProductToDatabase(newProduct);
       } else {
@@ -2655,7 +2703,6 @@
       populateReviewManagerUI();
     }
 
-    // FIXED: Save Footer & Policies to Firebase and UI smoothly
     function handleFooterSubmit(e) {
       e.preventDefault();
       footerData = {
@@ -2748,7 +2795,7 @@
       }
       renderFooter();
       renderPolicyContent();
-      populateFooterManagerUI(); // Database se load hote hi form me data autofill hoga
+      populateFooterManagerUI();
     });
 
     window.saveProductToDatabase = async (p) => await setDoc(doc(window.db, "products", String(p.id)), p);
